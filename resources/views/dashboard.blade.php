@@ -12,34 +12,206 @@
     </span>
 </div>
 
+<!-- Quota Card -->
+@if(auth()->check())
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card quota-card">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-1"><i class="bi bi-ticket-perforated"></i> سهمیه معرفی‌نامه شما</h5>
+                    <p class="text-muted mb-0">
+                        کل: <strong>{{ auth()->user()->quota_total }}</strong> |
+                        استفاده شده: <strong>{{ auth()->user()->quota_used }}</strong> |
+                        باقیمانده: <strong class="text-success">{{ auth()->user()->quota_remaining }}</strong>
+                    </p>
+                </div>
+                <div class="quota-progress-circle">
+                    <svg width="100" height="100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8"></circle>
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" stroke-width="8"
+                                stroke-dasharray="{{ auth()->user()->quota_total > 0 ? (auth()->user()->quota_remaining / auth()->user()->quota_total * 251) : 0 }} 251"
+                                stroke-linecap="round" transform="rotate(-90 50 50)"></circle>
+                        <text x="50" y="55" text-anchor="middle" font-size="20" font-weight="bold" fill="#10b981">
+                            {{ auth()->user()->quota_total > 0 ? round((auth()->user()->quota_remaining / auth()->user()->quota_total) * 100) : 0 }}%
+                        </text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Stats Cards -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="stat-card primary">
-            <i class="bi bi-house-door stat-icon"></i>
-            <div class="stat-value">{{ number_format($stats['total_beds'] ?? 0) }}</div>
-            <div class="stat-label">تخت فعال</div>
+        <div class="stat-card warning">
+            <i class="bi bi-clock-history stat-icon"></i>
+            <div class="stat-value">{{ number_format($stats['pending_requests'] ?? 0) }}</div>
+            <div class="stat-label">درخواست در انتظار</div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="stat-card success">
-            <i class="bi bi-people stat-icon"></i>
-            <div class="stat-value">{{ number_format($stats['total_personnel'] ?? 0) }}</div>
-            <div class="stat-label">پرسنل</div>
+            <i class="bi bi-check-circle stat-icon"></i>
+            <div class="stat-value">{{ number_format($stats['approved_requests'] ?? 0) }}</div>
+            <div class="stat-label">درخواست تأیید شده</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card warning">
-            <i class="bi bi-dice-5 stat-icon"></i>
-            <div class="stat-value">{{ $stats['active_lotteries'] ?? 0 }}</div>
-            <div class="stat-label">قرعه‌کشی فعال</div>
+        <div class="stat-card primary">
+            <i class="bi bi-file-earmark-text stat-icon"></i>
+            <div class="stat-value">{{ $stats['active_letters'] ?? 0 }}</div>
+            <div class="stat-label">معرفی‌نامه فعال</div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="stat-card danger">
-            <i class="bi bi-bookmark-check stat-icon"></i>
-            <div class="stat-value">{{ $stats['pending_reservations'] ?? 0 }}</div>
-            <div class="stat-label">رزرو در انتظار</div>
+        <div class="stat-card info">
+            <i class="bi bi-files stat-icon"></i>
+            <div class="stat-value">{{ $stats['total_letters'] ?? 0 }}</div>
+            <div class="stat-label">کل معرفی‌نامه‌ها</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning-charge"></i> دسترسی سریع
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ route('personnel-requests.create') }}" class="quick-action-btn">
+                            <i class="bi bi-person-plus-fill"></i>
+                            <span>ثبت درخواست جدید</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('personnel-requests.index', ['status' => 'pending']) }}" class="quick-action-btn">
+                            <i class="bi bi-clock-history"></i>
+                            <span>درخواست‌های در انتظار</span>
+                            @if(($stats['pending_requests'] ?? 0) > 0)
+                                <span class="badge bg-warning">{{ $stats['pending_requests'] }}</span>
+                            @endif
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('introduction-letters.create') }}" class="quick-action-btn">
+                            <i class="bi bi-file-earmark-plus"></i>
+                            <span>صدور معرفی‌نامه</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ route('centers.index') }}" class="quick-action-btn">
+                            <i class="bi bi-building"></i>
+                            <span>مراکز رفاهی</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mb-4">
+    <!-- Recent Personnel Requests -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-person-lines-fill"></i> آخرین درخواست‌ها
+                </div>
+                <a href="{{ route('personnel-requests.index') }}" class="btn btn-sm btn-outline-primary">
+                    مشاهده همه
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if(isset($recentRequests) && count($recentRequests) > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($recentRequests as $request)
+                            <a href="{{ route('personnel-requests.show', $request) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ $request->full_name }}</h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-hash"></i> {{ $request->tracking_code }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        @if($request->status === 'pending')
+                                            <span class="badge bg-warning">در انتظار</span>
+                                        @elseif($request->status === 'approved')
+                                            <span class="badge bg-success">تأیید شده</span>
+                                        @else
+                                            <span class="badge bg-danger">رد شده</span>
+                                        @endif
+                                        <br>
+                                        <small class="text-muted">{{ jdate($request->created_at)->ago() }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">هیچ درخواستی یافت نشد</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Introduction Letters -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-file-earmark-text"></i> آخرین معرفی‌نامه‌ها
+                </div>
+                <a href="{{ route('introduction-letters.index') }}" class="btn btn-sm btn-outline-primary">
+                    مشاهده همه
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if(isset($recentLetters) && count($recentLetters) > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($recentLetters as $letter)
+                            <a href="{{ route('introduction-letters.show', $letter) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ $letter->personnel->full_name }}</h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-building"></i> {{ $letter->center->name }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        @if($letter->status === 'active')
+                                            <span class="badge bg-success">فعال</span>
+                                        @elseif($letter->status === 'used')
+                                            <span class="badge bg-secondary">استفاده شده</span>
+                                        @else
+                                            <span class="badge bg-danger">لغو شده</span>
+                                        @endif
+                                        <br>
+                                        <small class="text-muted">{{ $letter->letter_code }}</small>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">هیچ معرفی‌نامه‌ای یافت نشد</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -100,7 +272,7 @@
                 </div>
                 <h2 class="welcome-title shimmer-text">به سامانه مدیریت مراکز رفاهی خوش آمدید</h2>
                 <p class="welcome-text">
-                    این سامانه برای مدیریت یکپارچه رزرو و قرعه‌کشی مراکز رفاهی بانک ملی ایران طراحی شده است.
+                    سامانه صدور معرفی‌نامه و مدیریت رزرو مراکز رفاهی بانک ملی ایران
                 </p>
                 <div class="welcome-features">
                     <div class="feature-item">
@@ -132,8 +304,8 @@
                     </div>
                 </div>
                 <div class="welcome-status">
-                    <i class="bi bi-gear-wide-connected"></i>
-                    سامانه در حال توسعه است...
+                    <i class="bi bi-check-circle-fill"></i>
+                    فاز 1 - سیستم معرفی‌نامه فعال است
                 </div>
             </div>
         </div>
@@ -143,6 +315,72 @@
 
 @push('styles')
 <style>
+    .quota-card {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 2px solid #10b981;
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .quota-progress-circle {
+        position: relative;
+    }
+
+    .quota-progress-circle svg {
+        transform: rotate(0deg);
+    }
+
+    .quick-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 25px 15px;
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #374151;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .quick-action-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+
+    .quick-action-btn i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .quick-action-btn span {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .quick-action-btn .badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+
+    .stat-card.info {
+        background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+        color: white;
+    }
+
+    .list-group-item {
+        transition: all 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f9fafb;
+        transform: translateX(-5px);
+    }
+
     .center-stat {
         padding: 15px;
         background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Center;
+use App\Models\IntroductionLetter;
 use App\Models\Lottery;
 use App\Models\Personnel;
 use App\Models\Province;
@@ -13,32 +14,31 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Phase 1 Statistics
         $stats = [
-            'total_centers' => Center::where('is_active', true)->count(),
-            'total_beds' => Center::where('is_active', true)->sum('bed_count'),
-            'total_personnel' => Personnel::where('is_active', true)->count(),
-            'total_provinces' => Province::where('is_active', true)->count(),
-            'active_lotteries' => Lottery::whereIn('status', ['open', 'closed'])->count(),
-            'pending_reservations' => Reservation::where('status', 'pending')->count(),
-            'today_check_ins' => Reservation::where('status', 'confirmed')
-                ->whereDate('created_at', today())
-                ->count(),
+            'pending_requests' => Personnel::where('status', 'pending')->count(),
+            'approved_requests' => Personnel::where('status', 'approved')->count(),
+            'active_letters' => IntroductionLetter::where('status', 'active')->count(),
+            'total_letters' => IntroductionLetter::count(),
         ];
 
-        $recentLotteries = Lottery::with(['period.center'])
+        // Recent Personnel Requests (last 5)
+        $recentRequests = Personnel::with(['preferredCenter', 'province'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
 
-        $recentReservations = Reservation::with(['personnel', 'unit.center', 'period'])
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
+        // Recent Introduction Letters (last 5)
+        $recentLetters = IntroductionLetter::with(['personnel', 'center', 'issuedBy'])
+            ->orderBy('issued_at', 'desc')
+            ->limit(5)
             ->get();
 
+        // Centers with unit and bed counts
         $centers = Center::withCount(['units' => function ($q) {
             $q->where('status', 'active');
         }])->get();
 
-        return view('dashboard', compact('stats', 'recentLotteries', 'recentReservations', 'centers'));
+        return view('dashboard', compact('stats', 'recentRequests', 'recentLetters', 'centers'));
     }
 }

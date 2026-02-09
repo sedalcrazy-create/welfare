@@ -795,28 +795,6 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">فاز 1 - معرفی‌نامه</div>
-                <div class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('personnel-requests.*') ? 'active' : '' }}" href="{{ route('personnel-requests.index') }}">
-                        <i class="bi bi-person-check"></i>
-                        <span>درخواست‌ها</span>
-                        @php
-                            $pendingCount = \App\Models\Personnel::where('status', 'pending')->count();
-                        @endphp
-                        @if($pendingCount > 0)
-                            <span class="nav-badge bg-warning">{{ $pendingCount }}</span>
-                        @endif
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('introduction-letters.*') ? 'active' : '' }}" href="{{ route('introduction-letters.index') }}">
-                        <i class="bi bi-file-earmark-text"></i>
-                        <span>معرفی‌نامه‌ها</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-section">
                 <div class="nav-section-title">مدیریت مراکز</div>
                 <div class="nav-item">
                     <a class="nav-link {{ request()->routeIs('centers.*') ? 'active' : '' }}" href="{{ route('centers.index') }}">
@@ -839,19 +817,19 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">عملیات (فاز 2)</div>
+                <div class="nav-section-title">عملیات</div>
                 <div class="nav-item">
                     <a class="nav-link disabled" href="#">
                         <i class="bi bi-shuffle"></i>
                         <span>قرعه‌کشی</span>
-                        <span class="nav-badge">فاز 2</span>
+                        <span class="nav-badge">به زودی</span>
                     </a>
                 </div>
                 <div class="nav-item">
                     <a class="nav-link disabled" href="#">
                         <i class="bi bi-calendar-check"></i>
                         <span>رزروها</span>
-                        <span class="nav-badge">فاز 2</span>
+                        <span class="nav-badge">به زودی</span>
                     </a>
                 </div>
             </div>
@@ -859,15 +837,17 @@
             <div class="nav-section">
                 <div class="nav-section-title">اطلاعات پایه</div>
                 <div class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('personnel.*') ? 'active' : '' }}" href="{{ route('personnel.index') }}">
+                    <a class="nav-link disabled" href="#">
                         <i class="bi bi-people"></i>
                         <span>پرسنل</span>
+                        <span class="nav-badge">به زودی</span>
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('provinces.*') ? 'active' : '' }}" href="{{ route('provinces.index') }}">
+                    <a class="nav-link disabled" href="#">
                         <i class="bi bi-map"></i>
                         <span>استان‌ها</span>
+                        <span class="nav-badge">به زودی</span>
                     </a>
                 </div>
             </div>
@@ -878,7 +858,7 @@
                     <a class="nav-link disabled" href="#">
                         <i class="bi bi-bar-chart-line"></i>
                         <span>گزارش‌ها</span>
-                        <span class="nav-badge">فاز 2</span>
+                        <span class="nav-badge">به زودی</span>
                     </a>
                 </div>
             </div>
