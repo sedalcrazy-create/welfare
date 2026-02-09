@@ -1,0 +1,72 @@
+services:
+  app:
+    image: php:8.2-fpm-alpine
+    container_name: welfare_app
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    networks:
+      - welfare_network
+    depends_on:
+      - postgres
+      - redis
+    command: >
+      sh -c "apk add --no-cache postgresql-dev libpng-dev libjpeg-turbo-dev freetype-dev libzip-dev icu-dev oniguruma-dev &&
+             docker-php-ext-configure gd --with-freetype --with-jpeg &&
+             docker-php-ext-install pdo pdo_pgsql pgsql gd zip intl mbstring exif pcntl bcmath opcache &&
+             php-fpm"
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: welfare_nginx
+    ports:
+      - "8083:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: welfare_postgres
+    environment:
+      POSTGRES_DB: welfare_system
+      POSTGRES_USER: welfare_user
+      POSTGRES_PASSWORD: welfare_secret_2024
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - welfare_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U welfare_user -d welfare_system"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: welfare_redis
+    ports:
+      - "6380:6379"
+    networks:
+      - welfare_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  welfare_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
