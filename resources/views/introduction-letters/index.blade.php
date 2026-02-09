@@ -131,8 +131,76 @@
                 </div>
 
                 {{-- Pagination --}}
-                <div class="mt-3">
-                    {{ $letters->links() }}
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    <div class="text-muted">
+                        نمایش {{ $letters->firstItem() ?? 0 }} تا {{ $letters->lastItem() ?? 0 }} از {{ $letters->total() }} نتیجه
+                    </div>
+                    <nav aria-label="صفحه‌بندی">
+                        <ul class="pagination mb-0">
+                            {{-- Previous Page Link --}}
+                            @if ($letters->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $letters->previousPageUrl() }}&status={{ request('status') }}&center_id={{ request('center_id') }}&search={{ request('search') }}" rel="prev">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Pagination Elements --}}
+                            @php
+                                $start = max($letters->currentPage() - 2, 1);
+                                $end = min($start + 4, $letters->lastPage());
+                                $start = max($end - 4, 1);
+                            @endphp
+
+                            @if($start > 1)
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $letters->url(1) }}&status={{ request('status') }}&center_id={{ request('center_id') }}&search={{ request('search') }}">1</a>
+                                </li>
+                                @if($start > 2)
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                @endif
+                            @endif
+
+                            @for ($i = $start; $i <= $end; $i++)
+                                @if ($i == $letters->currentPage())
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">{{ $i }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $letters->url($i) }}&status={{ request('status') }}&center_id={{ request('center_id') }}&search={{ request('search') }}">{{ $i }}</a>
+                                    </li>
+                                @endif
+                            @endfor
+
+                            @if($end < $letters->lastPage())
+                                @if($end < $letters->lastPage() - 1)
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                @endif
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $letters->url($letters->lastPage()) }}&status={{ request('status') }}&center_id={{ request('center_id') }}&search={{ request('search') }}">{{ $letters->lastPage() }}</a>
+                                </li>
+                            @endif
+
+                            {{-- Next Page Link --}}
+                            @if ($letters->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $letters->nextPageUrl() }}&status={{ request('status') }}&center_id={{ request('center_id') }}&search={{ request('search') }}" rel="next">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
                 </div>
             @else
                 <div class="text-center py-5 text-muted">
@@ -183,3 +251,40 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .pagination {
+        gap: 5px;
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        color: #374151;
+        padding: 8px 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .pagination .page-link:hover {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        font-weight: 700;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background: #f9fafb;
+        color: #9ca3af;
+        border-color: #e5e7eb;
+    }
+</style>
+@endpush
