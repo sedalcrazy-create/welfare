@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh:*)",
+      "Bash(tar:*)",
+      "Bash(scp:*)",
+      "Bash(composer install:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:ria.jafamhis.ir)",
+      "Bash(find:*)",
+      "Bash(rsync:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

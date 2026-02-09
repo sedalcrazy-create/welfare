@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_app
+    restart: always
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    networks:
+      - welfare_network
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: welfare_nginx
+    restart: always
+    ports:
+      - "8083:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: welfare_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-welfare_system}
+      POSTGRES_USER: ${DB_USERNAME:-welfare_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-welfare_secret}
+    volumes:
+      - welfare_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - welfare_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-welfare_user} -d ${DB_DATABASE:-welfare_system}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: welfare_redis
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - welfare_redis_data:/data
+    ports:
+      - "6381:6379"
+    networks:
+      - welfare_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_queue
+    restart: always
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - ./:/var/www
+    environment:
+      - APP_ENV=production
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+      - redis
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_scheduler
+    restart: always
+    working_dir: /var/www
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction;
+        sleep 60;
+      done"
+    volumes:
+      - ./:/var/www
+    environment:
+      - APP_ENV=production
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+
+networks:
+  welfare_network:
+    driver: bridge
+    name: welfare_network
+
+volumes:
+  welfare_postgres_data:
+    name: welfare_postgres_data
+  welfare_redis_data:
+    name: welfare_redis_data

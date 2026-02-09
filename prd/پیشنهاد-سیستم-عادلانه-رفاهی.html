@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پیشنهاد سیستم عادلانه تخصیص سهمیه مراکز رفاهی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'B Nazanin', 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 2;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d4f8b 0%, #1a73b8 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .header .subtitle {
+            font-size: 2.1rem;
+            opacity: 2;
+            position: relative;
+        }
+
+        .header .meta {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .header .meta span {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .toc {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            border: 2px solid #c5dff8;
+        }
+
+        .toc h2 {
+            color: #0d4f8b;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            gap: 20px;
+        }
+
+        .toc li {
+            padding: 8px 0;
+        }
+
+        .toc a {
+            color: #1a73b8;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .toc a:hover {
+            color: #0d4f8b;
+            padding-right: 10px;
+        }
+
+        section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            color: #0d4f8b;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1a73b8;
+            display: inline-block;
+        }
+
+        h3 {
+            color: #374151;
+            font-size: 1.2rem;
+            margin: 25px 0 15px;
+            background: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-right: 4px solid #1a73b8;
+        }
+
+        p {
+            color: #4b5563;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #0d4f8b 0%, #1a73b8 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #374151;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .problem-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-right: 4px solid #dc2626;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .problem-box h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .solution-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-right: 4px solid #16a34a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .solution-box h4 {
+            color: #16a34a;
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-right: 4px solid #2563eb;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-right: 4px solid #d97706;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #d97706;
+            margin-bottom: 10px;
+        }
+
+        .formula-box {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .formula-box .title {
+            color: #60a5fa;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #1a73b8;
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.green { border-top-color: #16a34a; }
+        .card.orange { border-top-color: #d97706; }
+        .card.red { border-top-color: #dc2626; }
+        .card.purple { border-top-color: #7c3aed; }
+
+        .card h4 {
+            color: #0d4f8b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .card ul {
+            list-style: none;
+        }
+
+        .card li {
+            padding: 8px 0;
+            color: #4b5563;
+            border-bottom: 1px dashed #e5e7eb;
+        }
+
+        .card li:last-child {
+            border-bottom: none;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #0d4f8b 0%, #1a73b8 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .timeline {
+            position: relative;
+            padding-right: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #1a73b8;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-right: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -26px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            background: #1a73b8;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #1a73b8;
+        }
+
+        .timeline-item h4 {
+            color: #0d4f8b;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            margin: 20px 0;
+        }
+
+        .comparison-table th.old {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        }
+
+        .comparison-table th.new {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge.success { background: #dcfce7; color: #16a34a; }
+        .badge.warning { background: #fef3c7; color: #d97706; }
+        .badge.danger { background: #fee2e2; color: #dc2626; }
+        .badge.info { background: #dbeafe; color: #2563eb; }
+
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            color: #94a3b8;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .score-example {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .score-example h5 {
+            color: #0d4f8b;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .progress-bar .fill.green { background: linear-gradient(90deg, #16a34a, #22c55e); }
+        .progress-bar .fill.blue { background: linear-gradient(90deg, #2563eb, #3b82f6); }
+        .progress-bar .fill.orange { background: linear-gradient(90deg, #d97706, #f59e0b); }
+        .progress-bar .fill.red { background: linear-gradient(90deg, #dc2626, #ef4444); }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .toc ul {
+                columns: 1;
+            }
+            .content {
+                padding: 20px;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>پیشنهاد سیستم عادلانه تخصیص سهمیه مراکز رفاهی</h1>
+            <p class="subtitle">با رویکرد شفافیت، عدالت و بهینه‌سازی منابع</p>
+            <div class="meta">
+                <span>نسخه: ۱.۰</span>
+                <span>تاریخ: دی ۱۴۰۴</span>
+                <span>اداره کل رفاه و درمان</span>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- فهرست -->
+            <nav class="toc">
+                <h2>فهرست مطالب</h2>
+                <ul>
+                    <li><a href="#summary">۱. خلاصه اجرایی</a></li>
+                    <li><a href="#current">۲. وضعیت فعلی و چالش‌ها</a></li>
+                    <li><a href="#stats">۳. آمار و ظرفیت مراکز</a></li>
+                    <li><a href="#score">۴. سیستم امتیازدهی عادلانه</a></li>
+                    <li><a href="#discount">۵. سیستم تخفیف پلکانی</a></li>
+                    <li><a href="#season">۶. مدیریت فصول و تقاضا</a></li>
+                    <li><a href="#lottery">۷. الگوریتم قرعه‌کشی هوشمند</a></li>
+                    <li><a href="#digital">۸. سامانه دیجیتال پیشنهادی</a></li>
+                    <li><a href="#comparison">۹. مقایسه سیستم فعلی و پیشنهادی</a></li>
+                    <li><a href="#implementation">۱۰. نقشه راه اجرا</a></li>
+                </ul>
+            </nav>
+
+            <!-- بخش ۱: خلاصه اجرایی -->
+            <section id="summary">
+                <h2>۱. خلاصه اجرایی</h2>
+
+                <p>این سند، پیشنهادی جامع برای بهبود سیستم تخصیص سهمیه مراکز رفاهی با هدف ایجاد <strong>عدالت</strong>، <strong>شفافیت</strong> و <strong>بهره‌وری</strong> ارائه می‌دهد.</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>🎯 مشکل اصلی</h4>
+                        <p>قانون "هر ۳ سال یکبار" بدون در نظر گرفتن <strong>نوع و کیفیت</strong> استفاده، باعث بی‌عدالتی شده است.</p>
+                    </div>
+                    <div class="card green">
+                        <h4>💡 راه‌حل پیشنهادی</h4>
+                        <p>سیستم <strong>امتیاز مصرف</strong> + <strong>تخفیف پلکانی</strong> بر اساس سابقه و نوع استفاده</p>
+                    </div>
+                    <div class="card orange">
+                        <h4>📊 نتیجه مورد انتظار</h4>
+                        <p>افزایش رضایت همکاران، کاهش اتاق‌های خالی، بهینه‌سازی هزینه‌ها</p>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <h4>اهداف کلیدی این پیشنهاد:</h4>
+                    <ul>
+                        <li>✅ ایجاد عدالت واقعی بین همکاران (نه فقط عدالت ظاهری ۳ ساله)</li>
+                        <li>✅ تشویق استفاده از فصول کم‌تقاضا (Low Season)</li>
+                        <li>✅ جلوگیری از هدررفت ظرفیت (تطابق اندازه خانواده با اتاق)</li>
+                        <li>✅ شفافیت کامل در فرآیند تخصیص</li>
+                        <li>✅ دیجیتالی‌سازی و حذف فرآیندهای دستی</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- بخش ۲: وضعیت فعلی -->
+            <section id="current">
+                <h2>۲. وضعیت فعلی و چالش‌ها</h2>
+
+                <h3>۲.۱ قوانین فعلی</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>قانون</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>سهمیه ۳ ساله</td>
+                            <td>هر همکار هر ۳ سال یکبار با نرخ بانکی</td>
+                        </tr>
+                        <tr>
+                            <td>نرخ بانکی</td>
+                            <td>۲,۰۰۰,۰۰۰ ریال/شب برای کل خانواده</td>
+                        </tr>
+                        <tr>
+                            <td>نرخ آزاد بانکی</td>
+                            <td>۱,۹۵۰,۰۰۰ ریال/شب/نفر (کمتر از ۳ سال)</td>
+                        </tr>
+                        <tr>
+                            <td>تخصیص سهمیه</td>
+                            <td>توسط واحدها به صورت دستی</td>
+                        </tr>
+                        <tr>
+                            <td>اولویت‌بندی</td>
+                            <td>بر اساس پر کردن ظرفیت (بدون معیار مشخص)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۲.۲ چالش‌ها و مشکلات</h3>
+
+                <div class="problem-box">
+                    <h4>🔴 مشکل ۱: بی‌عدالتی در قانون ۳ ساله</h4>
+                    <p>فردی که <strong>تابستان ۱۴۰۱</strong> به متل ساحلی بابلسر در <strong>تعطیلات رسمی</strong> رفته، با فردی که <strong>زمستان ۱۴۰۱</strong> به چادگان رفته، هر دو در سال ۱۴۰۴ واجد شرایط نرخ بانکی هستند. اما ارزش این دو استفاده یکسان نیست!</p>
+                </div>
+
+                <div class="problem-box">
+                    <h4>🔴 مشکل ۲: عدم تشویق Low Season</h4>
+                    <p>در فصول کم‌تقاضا (پاییز، زمستان غیرتعطیل) اتاق‌ها خالی می‌مانند در حالی که در تابستان و نوروز صف طولانی وجود دارد. هیچ مشوقی برای استفاده از Low Season وجود ندارد.</p>
+                </div>
+
+                <div class="problem-box">
+                    <h4>🔴 مشکل ۳: هدررفت ظرفیت</h4>
+                    <p>خانواده ۲ نفره در اتاق ۶ تخته اسکان می‌یابد، در حالی که خانواده ۵ نفره منتظر است. تطابقی بین اندازه خانواده و ظرفیت اتاق وجود ندارد.</p>
+                </div>
+
+                <div class="problem-box">
+                    <h4>🔴 مشکل ۴: عدم شفافیت</h4>
+                    <p>فرآیند تخصیص دستی و بدون معیار مشخص، باعث بی‌اعتمادی و اعتراض همکاران شده است.</p>
+                </div>
+
+                <div class="problem-box">
+                    <h4>🔴 مشکل ۵: تخفیف یکسان</h4>
+                    <p>کسی که <strong>۱۰ سال</strong> از مراکز استفاده نکرده با کسی که <strong>۳ سال</strong> پیش رفته، هر دو نرخ بانکی یکسان می‌گیرند!</p>
+                </div>
+
+                <h3>۲.۳ سناریوی نمونه از بی‌عدالتی</h3>
+                <div class="score-example">
+                    <h5>مقایسه دو همکار:</h5>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>معیار</th>
+                                <th>همکار الف</th>
+                                <th>همکار ب</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>آخرین استفاده</td>
+                                <td>تابستان ۱۴۰۱ - بابلسر</td>
+                                <td>زمستان ۱۴۰۱ - چادگان</td>
+                            </tr>
+                            <tr>
+                                <td>نوع فصل</td>
+                                <td>🔥 پیک (High Season)</td>
+                                <td>❄️ غیرپیک (Low Season)</td>
+                            </tr>
+                            <tr>
+                                <td>ارزش تقریبی</td>
+                                <td>بالاترین تقاضا</td>
+                                <td>کمترین تقاضا</td>
+                            </tr>
+                            <tr>
+                                <td>وضعیت در ۱۴۰۴</td>
+                                <td style="color: green;">✅ واجد شرایط نرخ بانکی</td>
+                                <td style="color: green;">✅ واجد شرایط نرخ بانکی</td>
+                            </tr>
+                            <tr>
+                                <td><strong>نتیجه</strong></td>
+                                <td colspan="2" style="text-align: center; color: red;"><strong>هر دو یکسان! این عدالت نیست.</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- بخش ۳: آمار -->
+            <section id="stats">
+                <h2>۳. آمار و ظرفیت مراکز رفاهی</h2>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="number">۷۰,۲۰۳</div>
+                        <div class="label">پرسنل شاغل و بازنشسته</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">~۲۰۰,۰۰۰</div>
+                        <div class="label">جامعه هدف (با خانواده)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">۳</div>
+                        <div class="label">مرکز رفاهی فعال</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">~۱,۲۸۰</div>
+                        <div class="label">تخت فعال</div>
+                    </div>
+                </div>
+
+                <h3>۳.۱ جزئیات مراکز</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مرکز</th>
+                            <th>نوع</th>
+                            <th>واحد فعال</th>
+                            <th>تخت</th>
+                            <th>با تشک</th>
+                            <th>مدت اقامت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>زائرسرای مشهد</strong></td>
+                            <td>زیارتی</td>
+                            <td>۲۲۷ اتاق</td>
+                            <td>۱,۰۲۹</td>
+                            <td>~۱,۴۸۰</td>
+                            <td>۵ شب</td>
+                        </tr>
+                        <tr>
+                            <td><strong>متل بابلسر</strong></td>
+                            <td>ساحلی</td>
+                            <td>۱۲۰ واحد</td>
+                            <td>~۴۸۰</td>
+                            <td>~۷۲۰</td>
+                            <td>۴ شب</td>
+                        </tr>
+                        <tr>
+                            <td><strong>چادگان</strong></td>
+                            <td>کوهستانی</td>
+                            <td>۳۴ ویلا</td>
+                            <td>۱۲۶</td>
+                            <td>۱۶۰</td>
+                            <td>۳ شب</td>
+                        </tr>
+                        <tr style="background: #f0f7ff; font-weight: bold;">
+                            <td>جمع کل</td>
+                            <td>-</td>
+                            <td>۳۸۱ واحد</td>
+                            <td>~۱,۶۳۵</td>
+                            <td>~۲,۳۶۰</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۳.۲ ظرفیت سالانه تقریبی</h3>
+                <div class="info-box">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>مرکز</th>
+                                <th>دوره در سال</th>
+                                <th>ظرفیت هر دوره</th>
+                                <th>ظرفیت سالانه (نفر)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>مشهد (۵ شب)</td>
+                                <td>~۷۰ دوره</td>
+                                <td>~۱,۴۸۰ نفر</td>
+                                <td><strong>~۱۰۰,۰۰۰</strong></td>
+                            </tr>
+                            <tr>
+                                <td>بابلسر (۴ شب)</td>
+                                <td>~۹۰ دوره</td>
+                                <td>~۷۲۰ نفر</td>
+                                <td><strong>~۶۵,۰۰۰</strong></td>
+                            </tr>
+                            <tr>
+                                <td>چادگان (۳ شب)</td>
+                                <td>~۱۰۴ دوره</td>
+                                <td>~۱۶۰ نفر</td>
+                                <td><strong>~۱۶,۶۰۰</strong></td>
+                            </tr>
+                            <tr style="background: #dcfce7;">
+                                <td colspan="3"><strong>جمع ظرفیت سالانه</strong></td>
+                                <td><strong>~۱۸۰,۰۰۰ نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 15px;"><strong>نتیجه:</strong> با ۲۰۰,۰۰۰ نفر جامعه هدف و ۱۸۰,۰۰۰ ظرفیت سالانه، اگر هر خانواده هر ۳ سال یکبار برود، تقریباً همه می‌توانند استفاده کنند. اما مشکل در <span class="highlight">توزیع نامتوازن تقاضا</span> بین فصول است.</p>
+                </div>
+            </section>
+
+            <!-- بخش ۴: سیستم امتیازدهی -->
+            <section id="score">
+                <h2>۴. سیستم امتیازدهی عادلانه</h2>
+
+                <p>به جای قانون ساده "۳ سال"، پیشنهاد می‌شود یک <strong>سیستم امتیاز مصرف</strong> پیاده‌سازی شود که نوع و کیفیت استفاده را در نظر بگیرد.</p>
+
+                <h3>۴.۱ امتیاز مصرف (Usage Score)</h3>
+                <p>هر بار استفاده از مراکز رفاهی، امتیازی متناسب با <strong>ارزش</strong> آن استفاده به همکار تعلق می‌گیرد:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع استفاده</th>
+                            <th>شرایط</th>
+                            <th>امتیاز مصرف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #fee2e2;">
+                            <td><strong>پیک طلایی</strong></td>
+                            <td>تابستان + بابلسر + تعطیلات رسمی</td>
+                            <td><span class="badge danger">۱۰ امتیاز</span></td>
+                        </tr>
+                        <tr style="background: #fef3c7;">
+                            <td><strong>پیک نقره‌ای</strong></td>
+                            <td>نوروز + مشهد یا تابستان + هر مرکز</td>
+                            <td><span class="badge warning">۸ امتیاز</span></td>
+                        </tr>
+                        <tr style="background: #fef3c7;">
+                            <td><strong>پیک برنزی</strong></td>
+                            <td>تعطیلات رسمی (غیر نوروز/تابستان)</td>
+                            <td><span class="badge warning">۶ امتیاز</span></td>
+                        </tr>
+                        <tr style="background: #dbeafe;">
+                            <td><strong>میان‌فصل</strong></td>
+                            <td>بهار، اوایل پاییز</td>
+                            <td><span class="badge info">۴ امتیاز</span></td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td><strong>غیرپیک</strong></td>
+                            <td>پاییز متأخر، زمستان (غیرتعطیل)</td>
+                            <td><span class="badge success">۲ امتیاز</span></td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td><strong>فوق‌العاده غیرپیک</strong></td>
+                            <td>زمستان چادگان، روزهای خاص خالی</td>
+                            <td><span class="badge success">۱ امتیاز</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۴.۲ امتیاز اولویت (Priority Score)</h3>
+                <p>برای تعیین اولویت در قرعه‌کشی و تخصیص سهمیه:</p>
+
+                <div class="formula-box">
+                    <div class="title">فرمول محاسبه امتیاز اولویت:</div>
+<pre>
+Priority_Score = Base_Score (100)
+    + (Years_Since_Last_Use × 10)      // هر سال عدم استفاده = +۱۰ امتیاز
+    - (Last_Usage_Score × 5)            // امتیاز مصرف قبلی = کاهش اولویت
+    + (Years_of_Service × 0.5)          // سابقه خدمت
+    + (Family_Size_Match_Bonus)         // تطابق با ظرفیت اتاق
+    + Random(0, 20)                     // عامل تصادفی برای عدالت
+</pre>
+                </div>
+
+                <h3>۴.۳ مثال‌های عملی</h3>
+
+                <div class="score-example">
+                    <h5>مثال ۱: همکار با ۱۰ سال عدم استفاده</h5>
+                    <table>
+                        <tr><td>امتیاز پایه</td><td>۱۰۰</td></tr>
+                        <tr><td>۱۰ سال عدم استفاده (۱۰×۱۰)</td><td>+۱۰۰</td></tr>
+                        <tr><td>امتیاز مصرف قبلی (۰×۵)</td><td>۰</td></tr>
+                        <tr><td>سابقه ۲۰ سال (۲۰×۰.۵)</td><td>+۱۰</td></tr>
+                        <tr style="background: #dcfce7; font-weight: bold;"><td>جمع</td><td>۲۱۰ + تصادفی</td></tr>
+                    </table>
+                    <div class="progress-bar"><div class="fill green" style="width: 95%;"></div></div>
+                    <p><strong>نتیجه:</strong> اولویت بسیار بالا برای High Season</p>
+                </div>
+
+                <div class="score-example">
+                    <h5>مثال ۲: همکار که ۳ سال پیش تابستان بابلسر رفته</h5>
+                    <table>
+                        <tr><td>امتیاز پایه</td><td>۱۰۰</td></tr>
+                        <tr><td>۳ سال عدم استفاده (۳×۱۰)</td><td>+۳۰</td></tr>
+                        <tr><td>امتیاز مصرف قبلی (۱۰×۵)</td><td><span style="color: red;">-۵۰</span></td></tr>
+                        <tr><td>سابقه ۱۵ سال (۱۵×۰.۵)</td><td>+۷.۵</td></tr>
+                        <tr style="background: #fef3c7; font-weight: bold;"><td>جمع</td><td>۸۷.۵ + تصادفی</td></tr>
+                    </table>
+                    <div class="progress-bar"><div class="fill orange" style="width: 45%;"></div></div>
+                    <p><strong>نتیجه:</strong> اولویت متوسط - بهتر است Low Season انتخاب کند</p>
+                </div>
+
+                <div class="score-example">
+                    <h5>مثال ۳: همکار که ۳ سال پیش زمستان چادگان رفته</h5>
+                    <table>
+                        <tr><td>امتیاز پایه</td><td>۱۰۰</td></tr>
+                        <tr><td>۳ سال عدم استفاده (۳×۱۰)</td><td>+۳۰</td></tr>
+                        <tr><td>امتیاز مصرف قبلی (۱×۵)</td><td><span style="color: green;">-۵</span></td></tr>
+                        <tr><td>سابقه ۱۵ سال (۱۵×۰.۵)</td><td>+۷.۵</td></tr>
+                        <tr style="background: #dcfce7; font-weight: bold;"><td>جمع</td><td>۱۳۲.۵ + تصادفی</td></tr>
+                    </table>
+                    <div class="progress-bar"><div class="fill blue" style="width: 70%;"></div></div>
+                    <p><strong>نتیجه:</strong> اولویت خوب برای High Season (پاداش استفاده از Low Season)</p>
+                </div>
+            </section>
+
+            <!-- بخش ۵: تخفیف پلکانی -->
+            <section id="discount">
+                <h2>۵. سیستم تخفیف پلکانی</h2>
+
+                <p>به جای تخفیف یکسان برای همه، پیشنهاد می‌شود تخفیف بر اساس <strong>سابقه عدم استفاده</strong> و <strong>نوع فصل</strong> محاسبه شود.</p>
+
+                <h3>۵.۱ جدول تخفیف پایه (بر اساس سال‌های عدم استفاده)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>سال‌های عدم استفاده</th>
+                            <th>تخفیف پایه</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>۳ سال</td>
+                            <td>۰٪ (نرخ بانکی معمولی)</td>
+                            <td>حداقل شرایط</td>
+                        </tr>
+                        <tr>
+                            <td>۴-۵ سال</td>
+                            <td>۱۰٪</td>
+                            <td>تشویق اولیه</td>
+                        </tr>
+                        <tr>
+                            <td>۶-۷ سال</td>
+                            <td>۲۰٪</td>
+                            <td>تخفیف متوسط</td>
+                        </tr>
+                        <tr>
+                            <td>۸-۱۰ سال</td>
+                            <td>۳۵٪</td>
+                            <td>تخفیف قابل توجه</td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td>۱۰+ سال</td>
+                            <td>۵۰٪</td>
+                            <td>تخفیف ویژه</td>
+                        </tr>
+                        <tr style="background: #bbf7d0;">
+                            <td>هرگز استفاده نکرده</td>
+                            <td>۶۰٪</td>
+                            <td>حداکثر تخفیف پایه</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۵.۲ تخفیف اضافی فصلی</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع فصل</th>
+                            <th>تخفیف اضافی</th>
+                            <th>تخفیف نهایی (۱۰ سال عدم استفاده)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #fee2e2;">
+                            <td>🔥 پیک طلایی (تابستان ساحلی)</td>
+                            <td>۰٪</td>
+                            <td>۵۰٪</td>
+                        </tr>
+                        <tr style="background: #fef3c7;">
+                            <td>🌟 پیک (نوروز، تابستان)</td>
+                            <td>+۵٪</td>
+                            <td>۵۵٪</td>
+                        </tr>
+                        <tr style="background: #dbeafe;">
+                            <td>🍂 میان‌فصل</td>
+                            <td>+۱۵٪</td>
+                            <td>۶۵٪</td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td>❄️ غیرپیک</td>
+                            <td>+۲۵٪</td>
+                            <td>۷۵٪</td>
+                        </tr>
+                        <tr style="background: #bbf7d0;">
+                            <td>⭐ فوق‌العاده غیرپیک</td>
+                            <td>+۳۵٪</td>
+                            <td><strong>۸۵٪</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۵.۳ فرمول نهایی تخفیف</h3>
+                <div class="formula-box">
+                    <div class="title">فرمول محاسبه تخفیف:</div>
+<pre>
+Discount = Base_Discount(Years) + Season_Bonus + Special_Bonuses
+
+Special_Bonuses:
+    + 5%  if Isargar (ایثارگر)
+    + 5%  if Family_Size >= 5
+    + 10% if First_Time_User
+
+Max_Discount = 90%
+</pre>
+                </div>
+
+                <h3>۵.۴ مثال‌های محاسبه هزینه</h3>
+                <p>هزینه ۵ شب مشهد برای خانواده ۴ نفره (اقامت + غذا):</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>سناریو</th>
+                            <th>تخفیف</th>
+                            <th>هزینه نهایی</th>
+                            <th>صرفه‌جویی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>۳ سال عدم استفاده + پیک</td>
+                            <td>۰٪</td>
+                            <td>۳۶,۷۰۰,۰۰۰ ریال</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>۵ سال عدم استفاده + پیک</td>
+                            <td>۱۵٪</td>
+                            <td>۳۱,۲۰۰,۰۰۰ ریال</td>
+                            <td>۵,۵۰۰,۰۰۰</td>
+                        </tr>
+                        <tr>
+                            <td>۱۰ سال عدم استفاده + پیک</td>
+                            <td>۵۵٪</td>
+                            <td>۱۶,۵۰۰,۰۰۰ ریال</td>
+                            <td>۲۰,۲۰۰,۰۰۰</td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td>۱۰ سال عدم استفاده + غیرپیک</td>
+                            <td>۷۵٪</td>
+                            <td>۹,۲۰۰,۰۰۰ ریال</td>
+                            <td><strong>۲۷,۵۰۰,۰۰۰</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="solution-box">
+                    <h4>✅ مزایای سیستم تخفیف پلکانی:</h4>
+                    <ul>
+                        <li>عدالت واقعی: هرچه بیشتر صبر کنید، تخفیف بیشتر</li>
+                        <li>تشویق Low Season: تخفیف بیشتر در فصول خلوت</li>
+                        <li>کاهش فشار بر High Season: همکاران ترجیح می‌دهند صبر کنند یا Low Season بروند</li>
+                        <li>افزایش رضایت: همه احساس می‌کنند سیستم عادلانه است</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- بخش ۶: مدیریت فصول -->
+            <section id="season">
+                <h2>۶. مدیریت فصول و تقاضا</h2>
+
+                <h3>۶.۱ تقسیم‌بندی فصول</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>دسته‌بندی</th>
+                            <th>بازه زمانی</th>
+                            <th>مراکز</th>
+                            <th>میزان تقاضا</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: #fee2e2;">
+                            <td><strong>🔥 پیک طلایی</strong></td>
+                            <td>تیر و مرداد + تعطیلات</td>
+                            <td>بابلسر</td>
+                            <td>
+                                <div class="progress-bar"><div class="fill red" style="width: 100%;"></div></div>
+                            </td>
+                        </tr>
+                        <tr style="background: #fef3c7;">
+                            <td><strong>🌟 پیک</strong></td>
+                            <td>نوروز، تابستان</td>
+                            <td>همه مراکز</td>
+                            <td>
+                                <div class="progress-bar"><div class="fill orange" style="width: 90%;"></div></div>
+                            </td>
+                        </tr>
+                        <tr style="background: #dbeafe;">
+                            <td><strong>🍂 میان‌فصل</strong></td>
+                            <td>فروردین (غیرنوروز)، شهریور، مهر</td>
+                            <td>همه مراکز</td>
+                            <td>
+                                <div class="progress-bar"><div class="fill blue" style="width: 60%;"></div></div>
+                            </td>
+                        </tr>
+                        <tr style="background: #dcfce7;">
+                            <td><strong>❄️ غیرپیک</strong></td>
+                            <td>آبان، آذر، بهمن، اسفند</td>
+                            <td>مشهد، چادگان</td>
+                            <td>
+                                <div class="progress-bar"><div class="fill green" style="width: 30%;"></div></div>
+                            </td>
+                        </tr>
+                        <tr style="background: #bbf7d0;">
+                            <td><strong>⭐ فوق‌العاده غیرپیک</strong></td>
+                            <td>دی، روزهای خاص</td>
+                            <td>چادگان</td>
+                            <td>
+                                <div class="progress-bar"><div class="fill green" style="width: 10%;"></div></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>۶.۲ سیاست‌های تشویقی Low Season</h3>
+
+                <div class="card-grid">
+                    <div class="card green">
+                        <h4>💰 تخفیف ویژه</h4>
+                        <ul>
+                            <li>تا ۹۰٪ تخفیف در فصول خلوت</li>
+                            <li>غذای رایگان در روزهای خاص</li>
+                            <li>اقامت شب اضافه رایگان</li>
+                        </ul>
+                    </div>
+                    <div class="card green">
+                        <h4>🎁 پاداش امتیازی</h4>
+                        <ul>
+                            <li>استفاده از Low Season = امتیاز مصرف کم</li>
+                            <li>افزایش اولویت برای High Season بعدی</li>
+                            <li>عدم شمارش در سهمیه ۳ ساله</li>
+                        </ul>
+                    </div>
+                    <div class="card green">
+                        <h4>📢 دعوت مستقیم</h4>
+                        <ul>
+                            <li>اعلام ظرفیت خالی به همه همکاران</li>
+                            <li>رزرو آنی بدون قرعه‌کشی</li>
+                            <li>اولویت با کسانی که هرگز نرفته‌اند</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>۶.۳ قانون پیشنهادی: جدا بودن سهمیه‌ها</h3>
+                <div class="warning-box">
+                    <h4>⚠️ پیشنهاد مهم:</h4>
+                    <p>سهمیه High Season و Low Season <strong>جدا</strong> باشند:</p>
+                    <ul>
+                        <li>هر همکار هر ۳ سال: <strong>۱ بار High Season</strong></li>
+                        <li>هر همکار هر سال: <strong>۱ بار Low Season</strong> (با تخفیف ویژه)</li>
+                    </ul>
+                    <p>این سیاست باعث می‌شود همکاران برای استفاده از Low Season ترغیب شوند و اتاق‌ها خالی نمانند.</p>
+                </div>
+            </section>
+
+            <!-- بخش ۷: الگوریتم قرعه‌کشی -->
+            <section id="lottery">
+                <h2>۷. الگوریتم قرعه‌کشی هوشمند</h2>
+
+                <h3>۷.۱ مراحل قرعه‌کشی</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>مرحله ۱: ثبت درخواست</h4>
+                        <p>همکاران از طریق سامانه، درخواست خود را با انتخاب مرکز، بازه زمانی و تعداد همراهان ثبت می‌کنند.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>مرحله ۲: محاسبه امتیاز</h4>
+                        <p>سیستم به صورت خودکار امتیاز اولویت هر درخواست را محاسبه می‌کند.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>مرحله ۳: تطبیق ظرفیت</h4>
+                        <p>درخواست‌ها بر اساس اندازه خانواده با اتاق‌های مناسب تطبیق داده می‌شوند.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>مرحله ۴: قرعه‌کشی</h4>
+                        <p>بر اساس امتیاز اولویت + عامل تصادفی، برندگان مشخص می‌شوند.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4>مرحله ۵: اعلام نتایج</h4>
+                        <p>نتایج از طریق پیامک و سامانه به همکاران اعلام می‌شود.</p>
+                    </div>
+                </div>
+
+                <h3>۷.۲ تطبیق هوشمند ظرفیت</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اندازه خانواده</th>
+                            <th>اتاق مناسب</th>
+                            <th>اولویت تخصیص</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>۲ نفر</td>
+                            <td>اتاق ۲-۳ تخته</td>
+                            <td>اتاق ۲ تخته > ۳ تخته</td>
+                        </tr>
+                        <tr>
+                            <td>۳-۴ نفر</td>
+                            <td>اتاق ۴ تخته یا ۳+تشک</td>
+                            <td>اتاق ۴ تخته > ۳+تشک > ۵ تخته</td>
+                        </tr>
+                        <tr>
+                            <td>۵-۶ نفر</td>
+                            <td>اتاق ۵-۶ تخته</td>
+                            <td>اتاق ۵ تخته > ۶ تخته > ۴+تشک</td>
+                        </tr>
+                        <tr>
+                            <td>۷+ نفر</td>
+                            <td>سوئیت یا ۲ اتاق مجاور</td>
+                            <td>سوئیت > ۲ اتاق با درب جداکننده</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <h4>🎯 هدف تطبیق ظرفیت:</h4>
+                    <ul>
+                        <li>جلوگیری از هدررفت (خانواده کوچک در اتاق بزرگ)</li>
+                        <li>رضایت بیشتر (خانواده بزرگ در اتاق مناسب)</li>
+                        <li>بهینه‌سازی استفاده از تشک‌ها</li>
+                    </ul>
+                </div>
+
+                <h3>۷.۳ لیست انتظار هوشمند</h3>
+                <p>برندگان نشده در لیست انتظار قرار می‌گیرند و در صورت انصراف برندگان، به ترتیب امتیاز جایگزین می‌شوند.</p>
+            </section>
+
+            <!-- بخش ۸: سامانه دیجیتال -->
+            <section id="digital">
+                <h2>۸. سامانه دیجیتال پیشنهادی</h2>
+
+                <h3>۸.۱ ماژول‌های اصلی</h3>
+                <div class="card-grid">
+                    <div class="card">
+                        <h4>🖥️ پنل مدیریت</h4>
+                        <ul>
+                            <li>مدیریت مراکز و اتاق‌ها</li>
+                            <li>تعریف فصول و تعرفه‌ها</li>
+                            <li>مشاهده گزارش‌ها و آمار</li>
+                            <li>اجرای قرعه‌کشی</li>
+                        </ul>
+                    </div>
+                    <div class="card purple">
+                        <h4>📱 پنل همکاران</h4>
+                        <ul>
+                            <li>مشاهده امتیاز و سابقه</li>
+                            <li>ثبت درخواست رزرو</li>
+                            <li>پیگیری وضعیت درخواست</li>
+                            <li>مشاهده نتایج قرعه‌کشی</li>
+                        </ul>
+                    </div>
+                    <div class="card orange">
+                        <h4>📊 ماژول گزارش‌گیری</h4>
+                        <ul>
+                            <li>نرخ اشغال مراکز</li>
+                            <li>آمار استفاده همکاران</li>
+                            <li>تحلیل عدالت توزیع</li>
+                            <li>پیش‌بینی تقاضا</li>
+                        </ul>
+                    </div>
+                    <div class="card green">
+                        <h4>🔔 سیستم اعلان</h4>
+                        <ul>
+                            <li>اعلام قرعه‌کشی جدید</li>
+                            <li>نتیجه قرعه‌کشی</li>
+                            <li>یادآوری تاریخ سفر</li>
+                            <li>اعلام ظرفیت خالی</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>۸.۲ مزایای دیجیتالی‌سازی</h3>
+                <div class="solution-box">
+                    <h4>✅ مزایای کلیدی:</h4>
+                    <ul>
+                        <li><strong>شفافیت کامل:</strong> همه مراحل قابل پیگیری است</li>
+                        <li><strong>حذف خطای انسانی:</strong> محاسبات خودکار و دقیق</li>
+                        <li><strong>کاهش بار اداری:</strong> حذف فرآیندهای دستی</li>
+                        <li><strong>دسترسی آسان:</strong> از طریق موبایل و وب</li>
+                        <li><strong>گزارش‌گیری لحظه‌ای:</strong> تصمیم‌گیری بهتر</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- بخش ۹: مقایسه -->
+            <section id="comparison">
+                <h2>۹. مقایسه سیستم فعلی و پیشنهادی</h2>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>معیار</th>
+                            <th class="old">سیستم فعلی</th>
+                            <th class="new">سیستم پیشنهادی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>قانون سهمیه</strong></td>
+                            <td>هر ۳ سال یکبار (ساده)</td>
+                            <td>امتیاز مصرف + اولویت (هوشمند)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تخفیف</strong></td>
+                            <td>یکسان برای همه</td>
+                            <td>پلکانی بر اساس سابقه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تشویق Low Season</strong></td>
+                            <td>ندارد</td>
+                            <td>تخفیف + پاداش امتیازی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تطبیق ظرفیت</strong></td>
+                            <td>ندارد</td>
+                            <td>تطبیق هوشمند خانواده-اتاق</td>
+                        </tr>
+                        <tr>
+                            <td><strong>شفافیت</strong></td>
+                            <td>کم (دستی)</td>
+                            <td>کامل (دیجیتال)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>قرعه‌کشی</strong></td>
+                            <td>ندارد</td>
+                            <td>هوشمند با امتیاز اولویت</td>
+                        </tr>
+                        <tr>
+                            <td><strong>گزارش‌گیری</strong></td>
+                            <td>محدود</td>
+                            <td>جامع و لحظه‌ای</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رضایت همکاران</strong></td>
+                            <td>متوسط</td>
+                            <td>بالا (انتظار)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- بخش ۱۰: نقشه راه -->
+            <section id="implementation">
+                <h2>۱۰. نقشه راه اجرا</h2>
+
+                <h3>فاز ۱: پایه (MVP)</h3>
+                <div class="card">
+                    <ul>
+                        <li>☐ طراحی پایگاه داده جدید</li>
+                        <li>☐ پنل مدیریت: مدیریت مراکز و اتاق‌ها</li>
+                        <li>☐ سیستم امتیازدهی ساده</li>
+                        <li>☐ پنل همکاران: مشاهده امتیاز و ثبت درخواست</li>
+                        <li>☐ قرعه‌کشی دستی با محاسبه خودکار امتیاز</li>
+                    </ul>
+                </div>
+
+                <h3>فاز ۲: بهینه‌سازی</h3>
+                <div class="card">
+                    <ul>
+                        <li>☐ الگوریتم تطبیق هوشمند ظرفیت</li>
+                        <li>☐ سیستم تخفیف پلکانی</li>
+                        <li>☐ مدیریت فصول (Season)</li>
+                        <li>☐ قرعه‌کشی خودکار</li>
+                        <li>☐ سیستم اعلان پیامکی</li>
+                    </ul>
+                </div>
+
+                <h3>فاز ۳: توسعه</h3>
+                <div class="card">
+                    <ul>
+                        <li>☐ اپلیکیشن موبایل یا مینی‌اپ بله</li>
+                        <li>☐ پرداخت آنلاین</li>
+                        <li>☐ داشبورد مدیریتی پیشرفته</li>
+                        <li>☐ یکپارچه‌سازی با سیستم‌های موجود</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>📋 پیش‌نیازهای اجرا:</h4>
+                    <ul>
+                        <li>تصویب سیاست‌های جدید توسط مدیریت</li>
+                        <li>تهیه داده‌های تاریخی استفاده همکاران</li>
+                        <li>آموزش واحدها و همکاران</li>
+                        <li>دوره آزمایشی قبل از اجرای کامل</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <footer class="footer">
+            <p>پیشنهاد سیستم عادلانه تخصیص سهمیه مراکز رفاهی</p>
+            <p>اداره کل رفاه و درمان | دی ۱۴۰۴</p>
+        </footer>
+    </div>
+</body>
+</html>

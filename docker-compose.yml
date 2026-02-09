@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - welfare_network
+    depends_on:
+      - postgres
+      - redis
+
+  nginx:
+    image: nginx:alpine
+    container_name: welfare_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: welfare_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: welfare_system
+      POSTGRES_USER: welfare_user
+      POSTGRES_PASSWORD: welfare_secret
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - welfare_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: welfare_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - welfare_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+    volumes:
+      - ./:/var/www
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+      - redis
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: welfare_scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan schedule:work
+    volumes:
+      - ./:/var/www
+    networks:
+      - welfare_network
+    depends_on:
+      - app
+
+networks:
+  welfare_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

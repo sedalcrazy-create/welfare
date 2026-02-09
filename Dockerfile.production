@@ -1,0 +1,85 @@
+# All-in-one container for Welfare System
+# Contains: PHP-FPM, Nginx, PostgreSQL, Supervisor
+FROM php:8.2-fpm-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    zip \
+    unzip \
+    postgresql16 \
+    postgresql16-contrib \
+    postgresql-dev \
+    icu-dev \
+    oniguruma-dev \
+    nginx \
+    supervisor
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        gd \
+        zip \
+        intl \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        opcache
+
+# Install Redis extension
+RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del .build-deps
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy composer files first for caching
+COPY composer.json composer.lock* ./
+
+# Install PHP dependencies
+RUN composer install --no-scripts --no-autoloader --prefer-dist --no-dev
+
+# Copy application files
+COPY . .
+
+# Generate autoload files
+RUN composer dump-autoload --optimize
+
+# Setup PostgreSQL data directory
+RUN mkdir -p /var/lib/postgresql/data /run/postgresql \
+    && chown -R postgres:postgres /var/lib/postgresql /run/postgresql
+
+# Setup directories and permissions
+RUN mkdir -p /var/www/html/storage/logs \
+    /var/www/html/storage/framework/cache \
+    /var/www/html/storage/framework/sessions \
+    /var/www/html/storage/framework/views \
+    /var/www/html/bootstrap/cache \
+    /var/log/supervisor \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy configurations
+COPY docker/production/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/production/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/production/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Expose port
+EXPOSE 80
+
+# Start supervisor (manages nginx, php-fpm, postgresql)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
