@@ -927,6 +927,34 @@
         </main>
     </div>
 
+    <!-- jQuery & Persian Datepicker -->
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/js/persian-date.min.js') }}"></script>
+    <script src="{{ asset('assets/js/persian-datepicker.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/css/persian-datepicker.min.css') }}">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize Persian datepicker for all elements with class 'datepicker'
+            $('.datepicker').persianDatepicker({
+                format: 'YYYY/MM/DD',
+                initialValue: false,
+                autoClose: true,
+                calendar: {
+                    persian: {
+                        locale: 'fa'
+                    }
+                },
+                navigator: {
+                    enabled: true
+                },
+                toolbox: {
+                    enabled: true
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 </body>
 </html>
