@@ -814,6 +814,14 @@
                         <span>معرفی‌نامه‌ها</span>
                     </a>
                 </div>
+                @role('super_admin|admin')
+                <div class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.user-quota.*') ? 'active' : '' }}" href="{{ route('admin.user-quota.index') }}">
+                        <i class="bi bi-ticket-perforated"></i>
+                        <span>مدیریت سهمیه</span>
+                    </a>
+                </div>
+                @endrole
             </div>
 
             <div class="nav-section">

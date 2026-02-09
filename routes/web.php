@@ -12,6 +12,7 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\PersonnelRequestController;
 use App\Http\Controllers\IntroductionLetterController;
+use App\Http\Controllers\Admin\UserQuotaController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -103,4 +104,11 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
         ->name('introduction-letters.mark-as-used');
     Route::get('introduction-letters/{introductionLetter}/print', [IntroductionLetterController::class, 'print'])
         ->name('introduction-letters.print');
+
+    // User Quota Management (Admin only)
+    Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin')->group(function () {
+        Route::get('user-quota', [UserQuotaController::class, 'index'])->name('user-quota.index');
+        Route::patch('user-quota/{user}', [UserQuotaController::class, 'update'])->name('user-quota.update');
+        Route::patch('user-quota/{user}/reset-used', [UserQuotaController::class, 'resetUsed'])->name('user-quota.reset-used');
+    });
 });
