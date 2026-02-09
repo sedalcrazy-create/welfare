@@ -10,6 +10,8 @@ use App\Http\Controllers\LotteryController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\ProvinceController;
+use App\Http\Controllers\PersonnelRequestController;
+use App\Http\Controllers\IntroductionLetterController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -85,4 +87,20 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
     Route::resource('provinces', ProvinceController::class)->except(['create', 'store', 'destroy']);
     Route::post('provinces/recalculate-quotas', [ProvinceController::class, 'recalculateQuotas'])
         ->name('provinces.recalculate-quotas');
+
+    // Personnel Requests Management (Phase 1)
+    Route::resource('personnel-requests', PersonnelRequestController::class);
+    Route::patch('personnel-requests/{personnelRequest}/approve', [PersonnelRequestController::class, 'approve'])
+        ->name('personnel-requests.approve');
+    Route::patch('personnel-requests/{personnelRequest}/reject', [PersonnelRequestController::class, 'reject'])
+        ->name('personnel-requests.reject');
+
+    // Introduction Letters Management (Phase 1)
+    Route::resource('introduction-letters', IntroductionLetterController::class)->except(['edit', 'update']);
+    Route::patch('introduction-letters/{introductionLetter}/cancel', [IntroductionLetterController::class, 'cancel'])
+        ->name('introduction-letters.cancel');
+    Route::patch('introduction-letters/{introductionLetter}/mark-as-used', [IntroductionLetterController::class, 'markAsUsed'])
+        ->name('introduction-letters.mark-as-used');
+    Route::get('introduction-letters/{introductionLetter}/print', [IntroductionLetterController::class, 'print'])
+        ->name('introduction-letters.print');
 });

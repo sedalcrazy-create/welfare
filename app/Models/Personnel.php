@@ -36,6 +36,11 @@ class Personnel extends Model
         'isargar_type',
         'isargar_percentage',
         'is_active',
+        'status',
+        'registration_source',
+        'preferred_center_id',
+        'notes',
+        'tracking_code',
     ];
 
     protected $casts = [
@@ -57,6 +62,14 @@ class Personnel extends Model
     public const ISARGAR_MARTYR_CHILD = 'martyr_child';
     public const ISARGAR_MARTYR_SPOUSE = 'martyr_spouse';
     public const ISARGAR_MARTYR_PARENT = 'martyr_parent';
+
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
+    public const SOURCE_MANUAL = 'manual';
+    public const SOURCE_BALE_BOT = 'bale_bot';
+    public const SOURCE_WEB = 'web';
 
     public function province(): BelongsTo
     {
@@ -81,6 +94,16 @@ class Personnel extends Model
     public function usageHistories(): HasMany
     {
         return $this->hasMany(UsageHistory::class);
+    }
+
+    public function introductionLetters(): HasMany
+    {
+        return $this->hasMany(IntroductionLetter::class);
+    }
+
+    public function preferredCenter(): BelongsTo
+    {
+        return $this->belongsTo(Center::class, 'preferred_center_id');
     }
 
     public function getLastUsageForCenter(int $centerId): ?UsageHistory
@@ -127,5 +150,38 @@ class Personnel extends Model
         }
 
         return 50; // ۵۰٪ تخفیف
+    }
+
+    // Scopes for Phase 1
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', self::STATUS_APPROVED);
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', self::STATUS_REJECTED);
+    }
+
+    public function scopeFromBaleBot($query)
+    {
+        return $query->where('registration_source', self::SOURCE_BALE_BOT);
+    }
+
+    /**
+     * Generate unique tracking code
+     */
+    public static function generateTrackingCode(): string
+    {
+        do {
+            $code = 'REQ-' . strtoupper(substr(uniqid(), -8));
+        } while (static::where('tracking_code', $code)->exists());
+
+        return $code;
     }
 }

@@ -21,6 +21,8 @@ class User extends Authenticatable
         'bale_user_id',
         'is_active',
         'last_login_at',
+        'quota_total',
+        'quota_used',
     ];
 
     protected $hidden = [
@@ -35,6 +37,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'quota_total' => 'integer',
+            'quota_used' => 'integer',
         ];
     }
 
@@ -69,5 +73,40 @@ class User extends Authenticatable
         }
 
         return false;
+    }
+
+    public function introductionLetters()
+    {
+        return $this->hasMany(IntroductionLetter::class, 'issued_by_user_id');
+    }
+
+    public function getQuotaRemaining(): int
+    {
+        return max(0, $this->quota_total - $this->quota_used);
+    }
+
+    public function hasQuotaAvailable(int $count = 1): bool
+    {
+        return $this->getQuotaRemaining() >= $count;
+    }
+
+    public function incrementQuotaUsed(int $count = 1): bool
+    {
+        if (!$this->hasQuotaAvailable($count)) {
+            return false;
+        }
+
+        $this->increment('quota_used', $count);
+        return true;
+    }
+
+    public function decrementQuotaUsed(int $count = 1): bool
+    {
+        if ($this->quota_used < $count) {
+            return false;
+        }
+
+        $this->decrement('quota_used', $count);
+        return true;
     }
 }
