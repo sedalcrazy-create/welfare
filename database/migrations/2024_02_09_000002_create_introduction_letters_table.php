@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('introduction_letters', function (Blueprint $table) {
             $table->id();
             $table->string('letter_code', 30)->unique(); // MHD-1404-001
-            $table->foreignId('personnel_id')->constrained()->onDelete('restrict');
+            $table->foreignId('personnel_id')->constrained('personnel')->onDelete('restrict');
             $table->foreignId('center_id')->constrained()->onDelete('restrict');
             $table->foreignId('issued_by_user_id')->constrained('users')->onDelete('restrict');
 

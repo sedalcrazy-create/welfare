@@ -10,26 +10,41 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Quota management for admins/provincial admins
-            $table->integer('quota_total')->default(0)->after('password');
-            $table->integer('quota_used')->default(0)->after('quota_total');
-            $table->integer('quota_remaining')->virtualAs('quota_total - quota_used')->after('quota_used');
+            if (!Schema::hasColumn('users', 'quota_total')) {
+                $table->integer('quota_total')->default(0)->after('password');
+            }
+            if (!Schema::hasColumn('users', 'quota_used')) {
+                $table->integer('quota_used')->default(0)->after('quota_total');
+            }
+        });
 
-            // Provincial assignment (if provincial admin)
-            $table->foreignId('province_id')->nullable()->after('quota_remaining')->constrained()->onDelete('set null');
+        // Add generated column using raw SQL for PostgreSQL
+        if (!Schema::hasColumn('users', 'quota_remaining')) {
+            \DB::statement('ALTER TABLE users ADD COLUMN quota_remaining INTEGER GENERATED ALWAYS AS (quota_total - quota_used) STORED');
+        }
 
-            $table->index('province_id');
+        // Add province_id if not exists (may already exist from previous migrations)
+        Schema::table('users', function (Blueprint $table) {
+            if (!Schema::hasColumn('users', 'province_id')) {
+                $table->foreignId('province_id')->nullable()->after('quota_remaining')->constrained('provinces')->onDelete('set null');
+                $table->index('province_id');
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
-                'quota_total',
-                'quota_used',
-                'quota_remaining',
-                'province_id'
-            ]);
+            if (Schema::hasColumn('users', 'quota_total')) {
+                $table->dropColumn('quota_total');
+            }
+            if (Schema::hasColumn('users', 'quota_used')) {
+                $table->dropColumn('quota_used');
+            }
+            if (Schema::hasColumn('users', 'quota_remaining')) {
+                $table->dropColumn('quota_remaining');
+            }
+            // Don't drop province_id as it may be used by other features
         });
     }
 };
