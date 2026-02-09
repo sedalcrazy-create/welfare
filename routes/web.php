@@ -13,6 +13,8 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\PersonnelRequestController;
 use App\Http\Controllers\IntroductionLetterController;
 use App\Http\Controllers\Admin\UserQuotaController;
+use App\Http\Controllers\Admin\UserCenterQuotaController;
+use App\Http\Controllers\Admin\RegistrationControlController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -105,10 +107,24 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
     Route::get('introduction-letters/{introductionLetter}/print', [IntroductionLetterController::class, 'print'])
         ->name('introduction-letters.print');
 
-    // User Quota Management (Admin only)
+    // Admin Management (Admin only)
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin')->group(function () {
+        // Old per-user quota (deprecated but keep for backward compatibility)
         Route::get('user-quota', [UserQuotaController::class, 'index'])->name('user-quota.index');
         Route::patch('user-quota/{user}', [UserQuotaController::class, 'update'])->name('user-quota.update');
         Route::patch('user-quota/{user}/reset-used', [UserQuotaController::class, 'resetUsed'])->name('user-quota.reset-used');
+
+        // New per-center quota management
+        Route::get('user-center-quota', [UserCenterQuotaController::class, 'index'])->name('user-center-quota.index');
+        Route::patch('user-center-quota/{user}/{center}', [UserCenterQuotaController::class, 'update'])->name('user-center-quota.update');
+        Route::patch('user-center-quota/{user}/{center}/reset', [UserCenterQuotaController::class, 'reset'])->name('user-center-quota.reset');
+        Route::post('user-center-quota/{user}/bulk-update', [UserCenterQuotaController::class, 'bulkUpdate'])->name('user-center-quota.bulk-update');
+
+        // Registration control management
+        Route::get('registration-control', [RegistrationControlController::class, 'index'])->name('registration-control.index');
+        Route::post('registration-control', [RegistrationControlController::class, 'store'])->name('registration-control.store');
+        Route::patch('registration-control/{registrationControl}', [RegistrationControlController::class, 'update'])->name('registration-control.update');
+        Route::patch('registration-control/{registrationControl}/toggle', [RegistrationControlController::class, 'toggleStatus'])->name('registration-control.toggle');
+        Route::delete('registration-control/{registrationControl}', [RegistrationControlController::class, 'destroy'])->name('registration-control.destroy');
     });
 });

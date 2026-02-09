@@ -80,6 +80,16 @@ class User extends Authenticatable
         return $this->hasMany(IntroductionLetter::class, 'issued_by_user_id');
     }
 
+    public function assignedLetters()
+    {
+        return $this->hasMany(IntroductionLetter::class, 'assigned_user_id');
+    }
+
+    public function centerQuotas()
+    {
+        return $this->hasMany(UserCenterQuota::class);
+    }
+
     public function getQuotaRemaining(): int
     {
         return max(0, $this->quota_total - $this->quota_used);
@@ -108,5 +118,27 @@ class User extends Authenticatable
 
         $this->decrement('quota_used', $count);
         return true;
+    }
+
+    // Per-Center Quota Methods
+    public function getQuotaForCenter(int $centerId): ?UserCenterQuota
+    {
+        return $this->centerQuotas()->where('center_id', $centerId)->first();
+    }
+
+    public function hasQuotaForCenter(int $centerId, int $count = 1): bool
+    {
+        $quota = $this->getQuotaForCenter($centerId);
+        return $quota && $quota->hasAvailable($count);
+    }
+
+    public function getTotalQuotaUsed(): int
+    {
+        return $this->centerQuotas()->sum('quota_used');
+    }
+
+    public function getTotalQuotaRemaining(): int
+    {
+        return $this->centerQuotas()->sum('quota_remaining');
     }
 }

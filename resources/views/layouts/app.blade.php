@@ -816,9 +816,15 @@
                 </div>
                 @role('super_admin|admin')
                 <div class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('admin.user-quota.*') ? 'active' : '' }}" href="{{ route('admin.user-quota.index') }}">
+                    <a class="nav-link {{ request()->routeIs('admin.user-center-quota.*') ? 'active' : '' }}" href="{{ route('admin.user-center-quota.index') }}">
                         <i class="bi bi-ticket-perforated"></i>
-                        <span>مدیریت سهمیه</span>
+                        <span>سهمیه (به تفکیک مرکز)</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.registration-control.*') ? 'active' : '' }}" href="{{ route('admin.registration-control.index') }}">
+                        <i class="bi bi-shield-lock"></i>
+                        <span>کنترل ثبت نام</span>
                     </a>
                 </div>
                 @endrole

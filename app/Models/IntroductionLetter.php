@@ -15,6 +15,7 @@ class IntroductionLetter extends Model
         'personnel_id',
         'center_id',
         'issued_by_user_id',
+        'assigned_user_id',
         'family_count',
         'notes',
         'valid_from',
@@ -58,6 +59,11 @@ class IntroductionLetter extends Model
     public function cancelledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by_user_id');
+    }
+
+    public function assignedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id');
     }
 
     // Scopes

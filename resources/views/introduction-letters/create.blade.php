@@ -111,6 +111,46 @@
                         <div class="form-text">حداقل 1، حداکثر 10 نفر</div>
                     </div>
 
+                    {{-- Assigned User --}}
+                    <div class="col-12">
+                        <label for="assigned_user_id" class="form-label">
+                            <i class="bi bi-person-circle"></i> از سهمیه کدام کاربر کم شود؟
+                        </label>
+                        <select class="form-select @error('assigned_user_id') is-invalid @enderror"
+                                id="assigned_user_id"
+                                name="assigned_user_id"
+                                onchange="updateUserQuota()">
+                            <option value="{{ auth()->id() }}" selected>
+                                خودم ({{ auth()->user()->name }})
+                            </option>
+                            @foreach($users as $u)
+                                @if($u->id !== auth()->id())
+                                    <option value="{{ $u->id }}"
+                                            data-quotas="{{ json_encode($u->centerQuotas->pluck('quota_remaining', 'center_id')) }}">
+                                        {{ $u->name }} ({{ $u->email }})
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                        @error('assigned_user_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">
+                            پیش‌فرض: سهمیه از حساب خودتان کم می‌شود.
+                            می‌توانید کاربر دیگری را انتخاب کنید.
+                        </div>
+                    </div>
+
+                    {{-- Quota Display --}}
+                    <div class="col-12" id="quota-display">
+                        <div class="alert alert-info">
+                            <strong><i class="bi bi-info-circle"></i> سهمیه موجود:</strong>
+                            <span id="quota-info">
+                                لطفاً مرکز را انتخاب کنید...
+                            </span>
+                        </div>
+                    </div>
+
                     {{-- Notes --}}
                     <div class="col-12">
                         <label for="notes" class="form-label">
@@ -187,6 +227,15 @@
 
 @push('scripts')
 <script>
+    // User quotas data
+    const userQuotas = @json($users->mapWithKeys(function($u) {
+        return [$u->id => $u->centerQuotas->pluck('quota_remaining', 'center_id')];
+    }));
+
+    // Current user quotas
+    const currentUserQuotas = @json(auth()->user()->centerQuotas->pluck('quota_remaining', 'center_id'));
+    userQuotas[{{ auth()->id() }}] = currentUserQuotas;
+
     function updatePersonnelInfo(select) {
         const option = select.options[select.selectedIndex];
 
@@ -206,9 +255,48 @@
             }
             if (option.dataset.preferredCenter) {
                 document.getElementById('center_id').value = option.dataset.preferredCenter;
+                updateQuotaDisplay(); // Update quota when center changes
             }
         } else {
             document.getElementById('personnel-info').style.display = 'none';
+        }
+    }
+
+    function updateUserQuota() {
+        updateQuotaDisplay();
+    }
+
+    function updateQuotaDisplay() {
+        const userId = document.getElementById('assigned_user_id').value;
+        const centerId = document.getElementById('center_id').value;
+
+        if (!userId || !centerId) {
+            document.getElementById('quota-info').textContent = 'لطفاً مرکز و کاربر را انتخاب کنید...';
+            return;
+        }
+
+        const quotas = userQuotas[userId] || {};
+        const remaining = quotas[centerId] || 0;
+
+        const centerName = document.getElementById('center_id').options[document.getElementById('center_id').selectedIndex].text;
+        const userName = document.getElementById('assigned_user_id').options[document.getElementById('assigned_user_id').selectedIndex].text;
+
+        if (remaining > 0) {
+            document.getElementById('quota-info').innerHTML = `
+                <span class="text-success">
+                    <i class="bi bi-check-circle"></i>
+                    ${userName} برای ${centerName}: <strong>${remaining}</strong> معرفی‌نامه باقیمانده دارد ✓
+                </span>
+            `;
+            document.querySelector('button[type="submit"]').disabled = false;
+        } else {
+            document.getElementById('quota-info').innerHTML = `
+                <span class="text-danger">
+                    <i class="bi bi-x-circle"></i>
+                    ${userName} برای ${centerName} سهمیه‌ای ندارد!
+                </span>
+            `;
+            document.querySelector('button[type="submit"]').disabled = true;
         }
     }
 
@@ -218,6 +306,9 @@
         if (personnelSelect.value) {
             updatePersonnelInfo(personnelSelect);
         }
+
+        // Add event listener to center select
+        document.getElementById('center_id').addEventListener('change', updateQuotaDisplay);
     });
 </script>
 @endpush

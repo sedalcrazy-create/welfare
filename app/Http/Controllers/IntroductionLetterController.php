@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\IntroductionLetter;
 use App\Models\Personnel;
 use App\Models\Center;
+use App\Models\User;
+use App\Models\UserCenterQuota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -71,18 +73,17 @@ class IntroductionLetterController extends Controller
             $personnel = null;
         }
 
-        // Check user quota
-        $user = auth()->user();
-        if (!$user->hasQuotaAvailable()) {
-            return redirect()
-                ->back()
-                ->with('error', 'سهمیه شما تمام شده است');
-        }
-
         $centers = Center::where('is_active', true)->get();
         $approvedPersonnel = Personnel::approved()->get();
 
-        return view('introduction-letters.create', compact('personnel', 'centers', 'approvedPersonnel'));
+        // Get users with quota (for admin to choose from)
+        $users = User::with('centerQuotas.center')
+            ->whereHas('centerQuotas', function ($q) {
+                $q->whereRaw('quota_total > quota_used');
+            })
+            ->get();
+
+        return view('introduction-letters.create', compact('personnel', 'centers', 'approvedPersonnel', 'users'));
     }
 
     /**
@@ -94,6 +95,7 @@ class IntroductionLetterController extends Controller
             'personnel_id' => 'required|exists:personnel,id',
             'center_id' => 'required|exists:centers,id',
             'family_count' => 'required|integer|min:1|max:10',
+            'assigned_user_id' => 'nullable|exists:users,id',
             'notes' => 'nullable|string|max:1000',
         ]);
 
@@ -106,13 +108,20 @@ class IntroductionLetterController extends Controller
                 ->with('error', 'این درخواست هنوز تأیید نشده است');
         }
 
-        $user = auth()->user();
+        // Determine assigned user (default: current user)
+        $assignedUserId = $validated['assigned_user_id'] ?? auth()->id();
+        $assignedUser = User::findOrFail($assignedUserId);
 
-        // Check quota
-        if (!$user->hasQuotaAvailable()) {
+        // Check quota for specific center
+        $quota = UserCenterQuota::where('user_id', $assignedUserId)
+            ->where('center_id', $validated['center_id'])
+            ->first();
+
+        if (!$quota || !$quota->hasAvailable()) {
+            $centerName = Center::find($validated['center_id'])->name;
             return redirect()
                 ->back()
-                ->with('error', 'سهمیه شما تمام شده است');
+                ->with('error', "سهمیه کافی برای {$centerName} وجود ندارد");
         }
 
         $center = Center::findOrFail($validated['center_id']);
@@ -128,15 +137,16 @@ class IntroductionLetterController extends Controller
                 'letter_code' => $letterCode,
                 'personnel_id' => $personnel->id,
                 'center_id' => $center->id,
-                'issued_by_user_id' => $user->id,
+                'issued_by_user_id' => auth()->id(),
+                'assigned_user_id' => $assignedUserId,
                 'family_count' => $validated['family_count'],
                 'notes' => $validated['notes'] ?? null,
                 'issued_at' => now(),
                 'status' => 'active',
             ]);
 
-            // Update user quota
-            $user->incrementQuotaUsed();
+            // Decrement quota for specific center
+            $quota->incrementUsed();
 
             DB::commit();
 
@@ -185,8 +195,14 @@ class IntroductionLetterController extends Controller
             // Cancel letter
             $introductionLetter->cancel($validated['cancellation_reason'], auth()->id());
 
-            // Return quota to user
-            $introductionLetter->issuedBy->decrementQuotaUsed();
+            // Return quota to assigned user (not issued_by)
+            $quota = UserCenterQuota::where('user_id', $introductionLetter->assigned_user_id)
+                ->where('center_id', $introductionLetter->center_id)
+                ->first();
+
+            if ($quota) {
+                $quota->decrementUsed();
+            }
 
             DB::commit();
 
