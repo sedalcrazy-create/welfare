@@ -20,6 +20,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// User Guide - Public access
+Route::get('/user-guide', function () {
+    return response()->file(public_path('user-guide.html'));
+})->name('user-guide');
+
 // Auth Routes (Guest only)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
