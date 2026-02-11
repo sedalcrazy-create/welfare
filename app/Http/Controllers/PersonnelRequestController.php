@@ -82,25 +82,37 @@ class PersonnelRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'employee_code' => 'required|string|max:20',
             'full_name' => 'required|string|max:255',
             'national_code' => 'required|string|size:10|unique:personnel,national_code',
             'phone' => 'required|string|max:20',
-            'family_count' => 'required|integer|min:1|max:10',
             'preferred_center_id' => 'required|exists:centers,id',
             'province_id' => 'nullable|exists:provinces,id',
             'notes' => 'nullable|string|max:1000',
+
+            // همراهان
+            'family_members' => 'nullable|array|max:10',
+            'family_members.*.full_name' => 'required|string|max:255',
+            'family_members.*.relation' => 'required|string|in:همسر,فرزند,پدر,مادر,سایر',
+            'family_members.*.national_code' => 'required|string|size:10',
+            'family_members.*.birth_date' => 'nullable|string|max:10',
+            'family_members.*.gender' => 'required|in:male,female',
         ], [
+            'employee_code.required' => 'کد پرسنلی الزامی است',
             'national_code.unique' => 'این کد ملی قبلاً ثبت شده است',
+            'family_members.*.national_code.size' => 'کد ملی همراه باید 10 رقم باشد',
+            'family_members.*.relation.in' => 'نسبت وارد شده معتبر نیست',
         ]);
 
         $personnel = Personnel::create([
+            'employee_code' => $validated['employee_code'],
             'full_name' => $validated['full_name'],
             'national_code' => $validated['national_code'],
             'phone' => $validated['phone'],
-            'family_count' => $validated['family_count'],
             'preferred_center_id' => $validated['preferred_center_id'],
             'province_id' => $validated['province_id'] ?? null,
             'notes' => $validated['notes'] ?? null,
+            'family_members' => $validated['family_members'] ?? null,
             'registration_source' => Personnel::SOURCE_MANUAL,
             'status' => Personnel::STATUS_PENDING,
             'tracking_code' => Personnel::generateTrackingCode(),
@@ -152,13 +164,21 @@ class PersonnelRequestController extends Controller
         }
 
         $validated = $request->validate([
+            'employee_code' => 'required|string|max:20',
             'full_name' => 'required|string|max:255',
             'national_code' => 'required|string|size:10|unique:personnel,national_code,' . $personnelRequest->id,
             'phone' => 'required|string|max:20',
-            'family_count' => 'required|integer|min:1|max:10',
             'preferred_center_id' => 'required|exists:centers,id',
             'province_id' => 'nullable|exists:provinces,id',
             'notes' => 'nullable|string|max:1000',
+
+            // همراهان
+            'family_members' => 'nullable|array|max:10',
+            'family_members.*.full_name' => 'required|string|max:255',
+            'family_members.*.relation' => 'required|string|in:همسر,فرزند,پدر,مادر,سایر',
+            'family_members.*.national_code' => 'required|string|size:10',
+            'family_members.*.birth_date' => 'nullable|string|max:10',
+            'family_members.*.gender' => 'required|in:male,female',
         ]);
 
         $personnelRequest->update($validated);

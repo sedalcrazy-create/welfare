@@ -25,6 +25,10 @@
                             <td><code class="fs-5">{{ $personnelRequest->tracking_code }}</code></td>
                         </tr>
                         <tr>
+                            <th>کد پرسنلی:</th>
+                            <td><strong>{{ $personnelRequest->employee_code }}</strong></td>
+                        </tr>
+                        <tr>
                             <th>نام و نام خانوادگی:</th>
                             <td><strong>{{ $personnelRequest->full_name }}</strong></td>
                         </tr>
@@ -37,8 +41,8 @@
                             <td dir="ltr" class="text-start">{{ $personnelRequest->phone }}</td>
                         </tr>
                         <tr>
-                            <th>تعداد اعضای خانواده:</th>
-                            <td><span class="badge bg-info fs-6">{{ $personnelRequest->family_count }} نفر</span></td>
+                            <th>تعداد کل افراد:</th>
+                            <td><span class="badge bg-info fs-6">{{ $personnelRequest->getTotalPersonsCount() }} نفر</span></td>
                         </tr>
                         <tr>
                             <th>مرکز مورد نظر:</th>
@@ -73,6 +77,60 @@
                     </table>
                 </div>
             </div>
+
+            {{-- Family Members --}}
+            @if($personnelRequest->hasFamilyMembers())
+                <div class="card mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-people-fill"></i>
+                            همراهان ({{ $personnelRequest->getFamilyMembersCount() }} نفر)
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="50">#</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>نسبت</th>
+                                        <th>کد ملی</th>
+                                        <th>تاریخ تولد</th>
+                                        <th>جنسیت</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($personnelRequest->family_members as $index => $member)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td><strong>{{ $member['full_name'] }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ $member['relation'] }}</span>
+                                        </td>
+                                        <td dir="ltr" class="text-start">{{ $member['national_code'] }}</td>
+                                        <td>{{ $member['birth_date'] ?? '-' }}</td>
+                                        <td>
+                                            @if($member['gender'] === 'male')
+                                                <i class="bi bi-gender-male text-primary"></i> مرد
+                                            @else
+                                                <i class="bi bi-gender-female text-danger"></i> زن
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>جمع کل افراد:</strong> {{ $personnelRequest->getTotalPersonsCount() }} نفر
+                            (1 سرپرست + {{ $personnelRequest->getFamilyMembersCount() }} همراه)
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- Introduction Letters --}}
             @if($personnelRequest->introductionLetters->isNotEmpty())

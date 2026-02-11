@@ -32,6 +32,7 @@ class Personnel extends Model
         'service_years',
         'hire_date',
         'family_count',
+        'family_members',
         'is_isargar',
         'isargar_type',
         'isargar_percentage',
@@ -46,6 +47,7 @@ class Personnel extends Model
     protected $casts = [
         'service_years' => 'integer',
         'family_count' => 'integer',
+        'family_members' => 'array',
         'is_isargar' => 'boolean',
         'isargar_percentage' => 'integer',
         'is_active' => 'boolean',
@@ -70,6 +72,13 @@ class Personnel extends Model
     public const SOURCE_MANUAL = 'manual';
     public const SOURCE_BALE_BOT = 'bale_bot';
     public const SOURCE_WEB = 'web';
+
+    // Family member relations
+    public const RELATION_SPOUSE = 'همسر';
+    public const RELATION_CHILD = 'فرزند';
+    public const RELATION_FATHER = 'پدر';
+    public const RELATION_MOTHER = 'مادر';
+    public const RELATION_OTHER = 'سایر';
 
     public function province(): BelongsTo
     {
@@ -183,5 +192,35 @@ class Personnel extends Model
         } while (static::where('tracking_code', $code)->exists());
 
         return $code;
+    }
+
+    // Family members helper methods
+    public function getFamilyMembersCount(): int
+    {
+        return $this->family_members ? count($this->family_members) : 0;
+    }
+
+    public function getTotalPersonsCount(): int
+    {
+        // سرپرست + همراهان
+        return 1 + $this->getFamilyMembersCount();
+    }
+
+    public function hasFamilyMembers(): bool
+    {
+        return !empty($this->family_members);
+    }
+
+    // Boot method for auto-calculating family_count
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($personnel) {
+            // محاسبه خودکار family_count از روی family_members
+            if (isset($personnel->family_members)) {
+                $personnel->family_count = count($personnel->family_members) + 1; // +1 برای خود سرپرست
+            }
+        });
     }
 }

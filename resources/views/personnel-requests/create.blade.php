@@ -11,12 +11,34 @@
         </a>
     </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="POST" action="{{ route('personnel-requests.store') }}">
-                @csrf
+    <form method="POST" action="{{ route('personnel-requests.store') }}">
+        @csrf
 
+        {{-- اطلاعات سرپرست اصلی --}}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-person-fill"></i> اطلاعات سرپرست اصلی
+            </div>
+            <div class="card-body">
                 <div class="row g-3">
+                    {{-- Employee Code --}}
+                    <div class="col-md-6">
+                        <label for="employee_code" class="form-label">
+                            کد پرسنلی <span class="text-danger">*</span>
+                        </label>
+                        <input type="text"
+                               class="form-control @error('employee_code') is-invalid @enderror"
+                               id="employee_code"
+                               name="employee_code"
+                               value="{{ old('employee_code') }}"
+                               required
+                               placeholder="مثال: 12345">
+                        @error('employee_code')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">کد پرسنلی بانک ملی</div>
+                    </div>
+
                     {{-- Full Name --}}
                     <div class="col-md-6">
                         <label for="full_name" class="form-label">
@@ -69,25 +91,6 @@
                         @error('phone')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
-
-                    {{-- Family Count --}}
-                    <div class="col-md-6">
-                        <label for="family_count" class="form-label">
-                            تعداد خانواده <span class="text-danger">*</span>
-                        </label>
-                        <input type="number"
-                               class="form-control @error('family_count') is-invalid @enderror"
-                               id="family_count"
-                               name="family_count"
-                               value="{{ old('family_count', 1) }}"
-                               required
-                               min="1"
-                               max="10">
-                        @error('family_count')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <div class="form-text">حداقل 1، حداکثر 10 نفر</div>
                     </div>
 
                     {{-- Preferred Center --}}
@@ -148,9 +151,97 @@
                         <div class="form-text">حداکثر 1000 کاراکتر</div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                {{-- Submit Buttons --}}
-                <div class="mt-4 d-flex gap-2">
+        {{-- همراهان --}}
+        <div class="card mt-3">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people-fill"></i> همراهان (اختیاری)</span>
+                <button type="button" id="add-family-member" class="btn btn-sm btn-light">
+                    <i class="bi bi-plus-circle"></i> افزودن همراه
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="family-members-container">
+                    {{-- Old family members will be restored here if validation fails --}}
+                    @if(old('family_members'))
+                        @foreach(old('family_members') as $index => $member)
+                        <div class="family-member-row border rounded p-3 mb-3 bg-light" data-index="{{ $index }}">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">نام و نام خانوادگی <span class="text-danger">*</span></label>
+                                    <input type="text" name="family_members[{{ $index }}][full_name]"
+                                           class="form-control @error("family_members.{$index}.full_name") is-invalid @enderror"
+                                           value="{{ $member['full_name'] ?? '' }}" required>
+                                    @error("family_members.{$index}.full_name")
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">نسبت <span class="text-danger">*</span></label>
+                                    <select name="family_members[{{ $index }}][relation]"
+                                            class="form-select @error("family_members.{$index}.relation") is-invalid @enderror" required>
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="همسر" {{ ($member['relation'] ?? '') === 'همسر' ? 'selected' : '' }}>همسر</option>
+                                        <option value="فرزند" {{ ($member['relation'] ?? '') === 'فرزند' ? 'selected' : '' }}>فرزند</option>
+                                        <option value="پدر" {{ ($member['relation'] ?? '') === 'پدر' ? 'selected' : '' }}>پدر</option>
+                                        <option value="مادر" {{ ($member['relation'] ?? '') === 'مادر' ? 'selected' : '' }}>مادر</option>
+                                        <option value="سایر" {{ ($member['relation'] ?? '') === 'سایر' ? 'selected' : '' }}>سایر</option>
+                                    </select>
+                                    @error("family_members.{$index}.relation")
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">کد ملی <span class="text-danger">*</span></label>
+                                    <input type="text" name="family_members[{{ $index }}][national_code]"
+                                           class="form-control national-code-input @error("family_members.{$index}.national_code") is-invalid @enderror"
+                                           value="{{ $member['national_code'] ?? '' }}" maxlength="10" pattern="[0-9]{10}" required>
+                                    @error("family_members.{$index}.national_code")
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">تاریخ تولد (اختیاری)</label>
+                                    <input type="text" name="family_members[{{ $index }}][birth_date]"
+                                           class="form-control persian-date" value="{{ $member['birth_date'] ?? '' }}"
+                                           placeholder="1370/01/01">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">جنسیت <span class="text-danger">*</span></label>
+                                    <select name="family_members[{{ $index }}][gender]"
+                                            class="form-select @error("family_members.{$index}.gender") is-invalid @enderror" required>
+                                        <option value="">انتخاب</option>
+                                        <option value="male" {{ ($member['gender'] ?? '') === 'male' ? 'selected' : '' }}>مرد</option>
+                                        <option value="female" {{ ($member['gender'] ?? '') === 'female' ? 'selected' : '' }}>زن</option>
+                                    </select>
+                                    @error("family_members.{$index}.gender")
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger btn-sm remove-member w-100">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    @endif
+                </div>
+
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    می‌توانید تا 10 همراه اضافه کنید. تعداد کل افراد به صورت خودکار محاسبه می‌شود.
+                </p>
+            </div>
+        </div>
+
+        {{-- Submit Buttons --}}
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle"></i> ثبت درخواست
                     </button>
@@ -158,9 +249,9 @@
                         <i class="bi bi-x-circle"></i> انصراف
                     </a>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+    </form>
 
     {{-- Help Card --}}
     <div class="card mt-3">
@@ -169,10 +260,12 @@
         </div>
         <div class="card-body">
             <ul class="mb-0">
-                <li>کد ملی باید 10 رقم و یونیک باشد (قبلاً ثبت نشده باشد)</li>
+                <li>کد پرسنلی و کد ملی باید معتبر باشند</li>
+                <li>کد ملی سرپرست باید یونیک باشد (قبلاً ثبت نشده باشد)</li>
+                <li>می‌توانید اطلاعات همراهان (همسر، فرزندان، والدین) را وارد کنید</li>
+                <li>تعداد کل افراد (سرپرست + همراهان) به صورت خودکار محاسبه می‌شود</li>
                 <li>بعد از ثبت، درخواست در وضعیت "در انتظار بررسی" قرار می‌گیرد</li>
                 <li>یک کد پیگیری به صورت خودکار تولید می‌شود (REQ-XXXXXXXX)</li>
-                <li>می‌توانید درخواست را تأیید یا رد کنید</li>
                 <li>فقط پس از تأیید، امکان صدور معرفی‌نامه وجود دارد</li>
             </ul>
         </div>
@@ -181,15 +274,90 @@
 
 @push('scripts')
 <script>
-    // Validate national code length
-    document.getElementById('national_code').addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+    let memberIndex = {{ old('family_members') ? count(old('family_members')) : 0 }};
+
+    // Add family member
+    document.getElementById('add-family-member').addEventListener('click', function() {
+        const container = document.getElementById('family-members-container');
+        const memberHtml = `
+            <div class="family-member-row border rounded p-3 mb-3 bg-light" data-index="${memberIndex}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">نام و نام خانوادگی <span class="text-danger">*</span></label>
+                        <input type="text" name="family_members[${memberIndex}][full_name]" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">نسبت <span class="text-danger">*</span></label>
+                        <select name="family_members[${memberIndex}][relation]" class="form-select" required>
+                            <option value="">انتخاب کنید</option>
+                            <option value="همسر">همسر</option>
+                            <option value="فرزند">فرزند</option>
+                            <option value="پدر">پدر</option>
+                            <option value="مادر">مادر</option>
+                            <option value="سایر">سایر</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">کد ملی <span class="text-danger">*</span></label>
+                        <input type="text" name="family_members[${memberIndex}][national_code]"
+                               class="form-control national-code-input" maxlength="10" pattern="[0-9]{10}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">تاریخ تولد (اختیاری)</label>
+                        <input type="text" name="family_members[${memberIndex}][birth_date]"
+                               class="form-control persian-date" placeholder="1370/01/01">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">جنسیت <span class="text-danger">*</span></label>
+                        <select name="family_members[${memberIndex}][gender]" class="form-select" required>
+                            <option value="">انتخاب</option>
+                            <option value="male">مرد</option>
+                            <option value="female">زن</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm remove-member w-100">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.insertAdjacentHTML('beforeend', memberHtml);
+        memberIndex++;
+
+        // Re-attach event listeners
+        attachInputListeners();
     });
 
-    // Phone number validation
-    document.getElementById('phone').addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9]/g, '');
+    // Remove family member
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-member')) {
+            e.target.closest('.family-member-row').remove();
+        }
     });
+
+    // Validate inputs
+    function attachInputListeners() {
+        // National code validation
+        document.querySelectorAll('.national-code-input, #national_code').forEach(input => {
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+            });
+        });
+
+        // Phone number validation
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput) {
+            phoneInput.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
+    }
+
+    // Initial attach
+    attachInputListeners();
 </script>
 @endpush
 @endsection

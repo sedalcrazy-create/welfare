@@ -17,15 +17,30 @@ class PersonnelRequestController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'employee_code' => 'required|string|max:20',
             'full_name' => 'required|string|max:255',
             'national_code' => 'required|string|size:10|unique:personnel,national_code',
             'phone' => 'required|string|max:20',
-            'family_count' => 'required|integer|min:1|max:10',
             'preferred_center_id' => 'required|exists:centers,id',
             'bale_user_id' => 'nullable|string|unique:personnel,bale_user_id',
+
+            // همراهان
+            'family_members' => 'nullable|array|max:10',
+            'family_members.*.full_name' => 'required|string|max:255',
+            'family_members.*.relation' => [
+                'required',
+                'string',
+                Rule::in(['همسر', 'فرزند', 'پدر', 'مادر', 'سایر'])
+            ],
+            'family_members.*.national_code' => 'required|string|size:10',
+            'family_members.*.birth_date' => 'nullable|string|max:10',
+            'family_members.*.gender' => 'required|in:male,female',
         ], [
+            'employee_code.required' => 'کد پرسنلی الزامی است',
             'national_code.unique' => 'این کد ملی قبلاً ثبت شده است',
             'preferred_center_id.exists' => 'مرکز انتخاب شده معتبر نیست',
+            'family_members.*.national_code.size' => 'کد ملی همراه باید 10 رقم باشد',
+            'family_members.*.relation.in' => 'نسبت وارد شده معتبر نیست',
         ]);
 
         if ($validator->fails()) {
@@ -38,12 +53,13 @@ class PersonnelRequestController extends Controller
 
         // Create personnel request
         $personnel = Personnel::create([
+            'employee_code' => $request->employee_code,
             'full_name' => $request->full_name,
             'national_code' => $request->national_code,
             'phone' => $request->phone,
-            'family_count' => $request->family_count,
             'preferred_center_id' => $request->preferred_center_id,
             'bale_user_id' => $request->bale_user_id,
+            'family_members' => $request->family_members ?? null,
             'registration_source' => Personnel::SOURCE_BALE_BOT,
             'status' => Personnel::STATUS_PENDING,
             'tracking_code' => Personnel::generateTrackingCode(),
@@ -56,9 +72,11 @@ class PersonnelRequestController extends Controller
             'message' => 'درخواست شما با موفقیت ثبت شد',
             'data' => [
                 'tracking_code' => $personnel->tracking_code,
+                'employee_code' => $personnel->employee_code,
                 'full_name' => $personnel->full_name,
                 'national_code' => $personnel->national_code,
-                'family_count' => $personnel->family_count,
+                'total_persons' => $personnel->getTotalPersonsCount(),
+                'family_members_count' => $personnel->getFamilyMembersCount(),
                 'preferred_center' => $center->name,
                 'status' => 'در انتظار بررسی',
                 'registered_at' => $personnel->created_at->format('Y/m/d H:i'),
