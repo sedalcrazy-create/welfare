@@ -1,0 +1,10 @@
+{
+  "name": "welfare-v2",
+  "version": "1.0.0",
+  "description": "Welfare System - Playwright Screenshots",
+  "private": true,
+  "scripts": {
+    "screenshots": "node scripts/take-screenshots.js"
+  },
+  "devDependencies": {}
+}
