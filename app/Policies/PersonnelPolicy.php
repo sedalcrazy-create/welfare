@@ -56,4 +56,30 @@ class PersonnelPolicy
     {
         return $user->hasPermissionTo('personnel.import');
     }
+
+    /**
+     * Determine if user can approve personnel requests
+     */
+    public function approve(User $user, ?Personnel $personnel = null): bool
+    {
+        // Admin and super_admin can approve
+        if ($user->hasRole(['admin', 'super_admin'])) {
+            return true;
+        }
+
+        // Provincial admin can approve their province's requests
+        if ($user->hasRole('provincial_admin') && $personnel) {
+            return $user->canManageProvince($personnel->province_id);
+        }
+
+        return false;
+    }
+
+    /**
+     * Determine if user can reject personnel requests
+     */
+    public function reject(User $user, ?Personnel $personnel = null): bool
+    {
+        return $this->approve($user, $personnel);
+    }
 }

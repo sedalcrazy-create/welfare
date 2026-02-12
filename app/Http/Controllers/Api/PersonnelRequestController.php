@@ -5,93 +5,84 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Personnel;
 use App\Models\Center;
+use App\Models\Period;
+use App\Services\PersonnelRequestService;
+use App\Http\Requests\Api\RegisterPersonnelRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class PersonnelRequestController extends Controller
 {
+    public function __construct(
+        private PersonnelRequestService $personnelService
+    ) {}
+
     /**
      * Register a new personnel request from Bale bot
      */
-    public function register(Request $request)
+    public function register(RegisterPersonnelRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'employee_code' => 'required|string|max:20',
-            'full_name' => 'required|string|max:255',
-            'national_code' => 'required|string|size:10|unique:personnel,national_code',
-            'phone' => 'required|string|max:20',
-            'preferred_center_id' => 'required|exists:centers,id',
-            'bale_user_id' => 'nullable|string|unique:personnel,bale_user_id',
+        try {
+            // Create personnel using service
+            $data = $request->validated();
+            $data['registration_source'] = Personnel::SOURCE_BALE_BOT;
 
-            // همراهان
-            'family_members' => 'nullable|array|max:10',
-            'family_members.*.full_name' => 'required|string|max:255',
-            'family_members.*.relation' => [
-                'required',
-                'string',
-                Rule::in(['همسر', 'فرزند', 'پدر', 'مادر', 'سایر'])
-            ],
-            'family_members.*.national_code' => 'required|string|size:10',
-            'family_members.*.birth_date' => 'nullable|string|max:10',
-            'family_members.*.gender' => 'required|in:male,female',
-        ], [
-            'employee_code.required' => 'کد پرسنلی الزامی است',
-            'national_code.unique' => 'این کد ملی قبلاً ثبت شده است',
-            'preferred_center_id.exists' => 'مرکز انتخاب شده معتبر نیست',
-            'family_members.*.national_code.size' => 'کد ملی همراه باید 10 رقم باشد',
-            'family_members.*.relation.in' => 'نسبت وارد شده معتبر نیست',
-        ]);
+            // Note: In Phase 1, we don't check quota at registration time
+            // Quota is checked when issuing introduction letter
+            $personnel = Personnel::create([
+                'employee_code' => $data['employee_code'],
+                'full_name' => $data['full_name'],
+                'national_code' => $data['national_code'],
+                'phone' => $data['phone'],
+                'preferred_center_id' => $data['preferred_center_id'],
+                'preferred_period_id' => $data['preferred_period_id'],
+                'bale_user_id' => $data['bale_user_id'] ?? null,
+                'family_members' => $data['family_members'] ?? null,
+                'registration_source' => Personnel::SOURCE_BALE_BOT,
+                'status' => Personnel::STATUS_PENDING,
+                'tracking_code' => Personnel::generateTrackingCode(),
+            ]);
 
-        if ($validator->fails()) {
+            $center = Center::find($personnel->preferred_center_id);
+            $period = Period::find($personnel->preferred_period_id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'درخواست شما با موفقیت ثبت شد',
+                'data' => [
+                    'tracking_code' => $personnel->tracking_code,
+                    'employee_code' => $personnel->employee_code,
+                    'full_name' => $personnel->full_name,
+                    'national_code' => $personnel->national_code,
+                    'total_persons' => $personnel->getTotalPersonsCount(),
+                    'family_members_count' => $personnel->getFamilyMembersCount(),
+                    'preferred_center' => $center->name,
+                    'preferred_period' => $period->title,
+                    'period_dates' => $period->start_date_jalali . ' تا ' . $period->end_date_jalali,
+                    'status' => 'در انتظار بررسی',
+                    'status_code' => Personnel::STATUS_PENDING,
+                    'registered_at' => $personnel->created_at->format('Y/m/d H:i'),
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'خطا در اعتبارسنجی اطلاعات',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'خطا در ثبت درخواست: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Create personnel request
-        $personnel = Personnel::create([
-            'employee_code' => $request->employee_code,
-            'full_name' => $request->full_name,
-            'national_code' => $request->national_code,
-            'phone' => $request->phone,
-            'preferred_center_id' => $request->preferred_center_id,
-            'bale_user_id' => $request->bale_user_id,
-            'family_members' => $request->family_members ?? null,
-            'registration_source' => Personnel::SOURCE_BALE_BOT,
-            'status' => Personnel::STATUS_PENDING,
-            'tracking_code' => Personnel::generateTrackingCode(),
-        ]);
-
-        $center = Center::find($request->preferred_center_id);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'درخواست شما با موفقیت ثبت شد',
-            'data' => [
-                'tracking_code' => $personnel->tracking_code,
-                'employee_code' => $personnel->employee_code,
-                'full_name' => $personnel->full_name,
-                'national_code' => $personnel->national_code,
-                'total_persons' => $personnel->getTotalPersonsCount(),
-                'family_members_count' => $personnel->getFamilyMembersCount(),
-                'preferred_center' => $center->name,
-                'status' => 'در انتظار بررسی',
-                'registered_at' => $personnel->created_at->format('Y/m/d H:i'),
-            ]
-        ], 201);
     }
 
     /**
-     * Check request status by national code or tracking code
+     * Check request status by tracking code
      */
     public function checkStatus(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'identifier' => 'required|string',
-            'identifier_type' => 'required|in:national_code,tracking_code',
+            'tracking_code' => 'required|string',
+        ], [
+            'tracking_code.required' => 'کد پیگیری الزامی است',
         ]);
 
         if ($validator->fails()) {
@@ -102,8 +93,7 @@ class PersonnelRequestController extends Controller
             ], 422);
         }
 
-        $field = $request->identifier_type;
-        $personnel = Personnel::where($field, $request->identifier)->first();
+        $personnel = $this->personnelService->findByTrackingCode($request->tracking_code);
 
         if (!$personnel) {
             return response()->json([
@@ -130,8 +120,18 @@ class PersonnelRequestController extends Controller
                 'status_code' => $personnel->status,
                 'registered_at' => $personnel->created_at->format('Y/m/d H:i'),
                 'preferred_center' => $personnel->preferredCenter?->name,
+                'preferred_period' => $personnel->preferredPeriod?->title,
             ]
         ];
+
+        // If has period, include period info
+        if ($personnel->preferredPeriod) {
+            $response['data']['period_info'] = [
+                'title' => $personnel->preferredPeriod->title,
+                'start_date' => $personnel->preferredPeriod->start_date_jalali,
+                'end_date' => $personnel->preferredPeriod->end_date_jalali,
+            ];
+        }
 
         // If approved, include introduction letter info
         if ($personnel->status === Personnel::STATUS_APPROVED) {
@@ -141,9 +141,12 @@ class PersonnelRequestController extends Controller
                 $response['data']['introduction_letter'] = [
                     'letter_code' => $letter->letter_code,
                     'center' => $letter->center->name,
+                    'period' => $letter->period?->title,
                     'family_count' => $letter->family_count,
                     'issued_at' => $letter->issued_at->format('Y/m/d H:i'),
                     'status' => $letter->status,
+                    'valid_from' => $letter->valid_from,
+                    'valid_until' => $letter->valid_until,
                 ];
             }
         }
@@ -183,15 +186,20 @@ class PersonnelRequestController extends Controller
         }
 
         $letters = $personnel->introductionLetters()
-            ->with(['center', 'issuedBy'])
+            ->with(['center', 'period', 'issuedBy'])
             ->latest()
             ->get()
             ->map(function ($letter) {
                 return [
                     'letter_code' => $letter->letter_code,
                     'center' => $letter->center->name,
+                    'period' => $letter->period?->title,
+                    'period_dates' => $letter->period ?
+                        $letter->period->start_date_jalali . ' تا ' . $letter->period->end_date_jalali : null,
                     'family_count' => $letter->family_count,
                     'issued_at' => $letter->issued_at->format('Y/m/d H:i'),
+                    'valid_from' => $letter->valid_from,
+                    'valid_until' => $letter->valid_until,
                     'status' => $letter->status,
                     'is_active' => $letter->isActive(),
                 ];

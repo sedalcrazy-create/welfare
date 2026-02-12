@@ -14,6 +14,7 @@ class IntroductionLetter extends Model
         'letter_code',
         'personnel_id',
         'center_id',
+        'period_id',
         'issued_by_user_id',
         'assigned_user_id',
         'family_count',
@@ -49,6 +50,11 @@ class IntroductionLetter extends Model
     public function center(): BelongsTo
     {
         return $this->belongsTo(Center::class);
+    }
+
+    public function period(): BelongsTo
+    {
+        return $this->belongsTo(Period::class);
     }
 
     public function issuedBy(): BelongsTo
@@ -123,20 +129,39 @@ class IntroductionLetter extends Model
 
     /**
      * Generate unique letter code
+     * Format: {CENTER_CODE}-{YYمم}-{SEQUENCE}
+     * Example: MAS-0501-0001
      */
-    public static function generateLetterCode(Center $center): string
+    public static function generateLetterCode(Center $center, ?Period $period = null): string
     {
-        $prefix = strtoupper(substr($center->slug, 0, 3)); // MAS, BAB, CHA
-        $year = jdate()->format('y'); // 04
-        $month = jdate()->format('m'); // 11
+        $centerCodes = [
+            'mashhad' => 'MAS',
+            'babolsar' => 'BAB',
+            'chadegan' => 'CHA',
+        ];
 
-        $lastLetter = static::where('center_id', $center->id)
-            ->where('letter_code', 'like', "{$prefix}-{$year}{$month}-%")
-            ->latest('id')
-            ->first();
+        $prefix = $centerCodes[$center->slug] ?? strtoupper(substr($center->slug, 0, 3));
+
+        // استخراج سال و ماه از تاریخ شروع دوره یا تاریخ امروز
+        if ($period) {
+            $jalaliDate = jdate($period->start_date);
+        } else {
+            $jalaliDate = jdate(now());
+        }
+        $yearMonth = $jalaliDate->format('ym'); // 0501
+
+        // شماره ترتیبی برای این مرکز
+        $query = static::where('center_id', $center->id)
+            ->where('letter_code', 'like', "{$prefix}-{$yearMonth}-%");
+
+        if ($period) {
+            $query->where('period_id', $period->id);
+        }
+
+        $lastLetter = $query->latest('id')->first();
 
         $sequence = $lastLetter ? ((int) substr($lastLetter->letter_code, -4)) + 1 : 1;
 
-        return sprintf('%s-%s%s-%04d', $prefix, $year, $month, $sequence);
+        return sprintf('%s-%s-%04d', $prefix, $yearMonth, $sequence);
     }
 }

@@ -114,6 +114,31 @@
                         @enderror
                     </div>
 
+                    {{-- Preferred Period --}}
+                    <div class="col-md-6">
+                        <label for="preferred_period_id" class="form-label">
+                            دوره اقامت <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select @error('preferred_period_id') is-invalid @enderror"
+                                id="preferred_period_id"
+                                name="preferred_period_id"
+                                required>
+                            <option value="">-- انتخاب کنید --</option>
+                            @foreach($periods as $period)
+                                <option value="{{ $period->id }}" {{ old('preferred_period_id') == $period->id ? 'selected' : '' }}>
+                                    {{ jdate($period->start_date)->format('Y/m/d') }} تا {{ jdate($period->end_date)->format('Y/m/d') }}
+                                    @if($period->center)
+                                        ({{ $period->center->name }})
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('preferred_period_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text">دوره‌های باز و فعال</div>
+                    </div>
+
                     {{-- Province --}}
                     <div class="col-md-6">
                         <label for="province_id" class="form-label">

@@ -4,12 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Personnel;
 use App\Models\Center;
+use App\Models\Period;
 use App\Models\Province;
+use App\Services\PersonnelRequestService;
+use App\Http\Requests\StorePersonnelRequest;
+use App\Http\Requests\UpdatePersonnelRequest;
+use App\Http\Requests\RejectPersonnelRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PersonnelRequestController extends Controller
 {
+    use AuthorizesRequests;
+
+    public function __construct(
+        private PersonnelRequestService $personnelService
+    ) {}
     /**
      * Display a listing of personnel requests
      */
@@ -70,57 +80,56 @@ class PersonnelRequestController extends Controller
      */
     public function create()
     {
-        $centers = Center::where('is_active', true)->get();
-        $provinces = Province::where('is_active', true)->get();
+        $this->authorize('create', Personnel::class);
 
-        return view('personnel-requests.create', compact('centers', 'provinces'));
+        $centers = Center::where('is_active', true)->orderBy('name')->get();
+        $provinces = Province::where('is_active', true)->orderBy('name')->get();
+        $periods = Period::where('status', 'open')
+            ->where('end_date', '>=', now())
+            ->orderBy('start_date')
+            ->get();
+
+        return view('personnel-requests.create', compact('centers', 'provinces', 'periods'));
     }
 
     /**
      * Store a newly created request
      */
-    public function store(Request $request)
+    public function store(StorePersonnelRequest $request)
     {
-        $validated = $request->validate([
-            'employee_code' => 'required|string|max:20',
-            'full_name' => 'required|string|max:255',
-            'national_code' => 'required|string|size:10|unique:personnel,national_code',
-            'phone' => 'required|string|max:20',
-            'preferred_center_id' => 'required|exists:centers,id',
-            'province_id' => 'nullable|exists:provinces,id',
-            'notes' => 'nullable|string|max:1000',
+        $this->authorize('create', Personnel::class);
 
-            // همراهان
-            'family_members' => 'nullable|array|max:10',
-            'family_members.*.full_name' => 'required|string|max:255',
-            'family_members.*.relation' => 'required|string|in:همسر,فرزند,پدر,مادر,سایر',
-            'family_members.*.national_code' => 'required|string|size:10',
-            'family_members.*.birth_date' => 'nullable|string|max:10',
-            'family_members.*.gender' => 'required|in:male,female',
-        ], [
-            'employee_code.required' => 'کد پرسنلی الزامی است',
-            'national_code.unique' => 'این کد ملی قبلاً ثبت شده است',
-            'family_members.*.national_code.size' => 'کد ملی همراه باید 10 رقم باشد',
-            'family_members.*.relation.in' => 'نسبت وارد شده معتبر نیست',
-        ]);
+        try {
+            $data = $request->validated();
+            $data['registration_source'] = Personnel::SOURCE_WEB;
 
-        $personnel = Personnel::create([
-            'employee_code' => $validated['employee_code'],
-            'full_name' => $validated['full_name'],
-            'national_code' => $validated['national_code'],
-            'phone' => $validated['phone'],
-            'preferred_center_id' => $validated['preferred_center_id'],
-            'province_id' => $validated['province_id'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-            'family_members' => $validated['family_members'] ?? null,
-            'registration_source' => Personnel::SOURCE_MANUAL,
-            'status' => Personnel::STATUS_PENDING,
-            'tracking_code' => Personnel::generateTrackingCode(),
-        ]);
+            // Note: We don't use service here to avoid quota check at registration
+            // Quota is checked when issuing introduction letter
+            $personnel = Personnel::create([
+                'employee_code' => $data['employee_code'],
+                'full_name' => $data['full_name'],
+                'national_code' => $data['national_code'],
+                'phone' => $data['phone'],
+                'preferred_center_id' => $data['preferred_center_id'],
+                'preferred_period_id' => $data['preferred_period_id'],
+                'province_id' => $data['province_id'] ?? null,
+                'notes' => $data['notes'] ?? null,
+                'family_members' => $data['family_members'] ?? null,
+                'registration_source' => Personnel::SOURCE_WEB,
+                'status' => Personnel::STATUS_PENDING,
+                'tracking_code' => Personnel::generateTrackingCode(),
+            ]);
 
-        return redirect()
-            ->route('personnel-requests.show', $personnel)
-            ->with('success', 'درخواست با موفقیت ثبت شد. کد پیگیری: ' . $personnel->tracking_code);
+            return redirect()
+                ->route('personnel-requests.show', $personnel)
+                ->with('success', 'درخواست با موفقیت ثبت شد. کد پیگیری: ' . $personnel->tracking_code);
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'خطا در ثبت درخواست: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -138,6 +147,8 @@ class PersonnelRequestController extends Controller
      */
     public function edit(Personnel $personnelRequest)
     {
+        $this->authorize('update', $personnelRequest);
+
         // Only allow editing pending requests
         if ($personnelRequest->status !== Personnel::STATUS_PENDING) {
             return redirect()
@@ -145,17 +156,23 @@ class PersonnelRequestController extends Controller
                 ->with('error', 'فقط درخواست‌های در حال بررسی قابل ویرایش هستند');
         }
 
-        $centers = Center::where('is_active', true)->get();
-        $provinces = Province::where('is_active', true)->get();
+        $centers = Center::where('is_active', true)->orderBy('name')->get();
+        $provinces = Province::where('is_active', true)->orderBy('name')->get();
+        $periods = Period::where('status', 'open')
+            ->where('end_date', '>=', now())
+            ->orderBy('start_date')
+            ->get();
 
-        return view('personnel-requests.edit', compact('personnelRequest', 'centers', 'provinces'));
+        return view('personnel-requests.edit', compact('personnelRequest', 'centers', 'provinces', 'periods'));
     }
 
     /**
      * Update the specified request
      */
-    public function update(Request $request, Personnel $personnelRequest)
+    public function update(UpdatePersonnelRequest $request, Personnel $personnelRequest)
     {
+        $this->authorize('update', $personnelRequest);
+
         // Only allow updating pending requests
         if ($personnelRequest->status !== Personnel::STATUS_PENDING) {
             return redirect()
@@ -163,29 +180,19 @@ class PersonnelRequestController extends Controller
                 ->with('error', 'فقط درخواست‌های در حال بررسی قابل ویرایش هستند');
         }
 
-        $validated = $request->validate([
-            'employee_code' => 'required|string|max:20',
-            'full_name' => 'required|string|max:255',
-            'national_code' => 'required|string|size:10|unique:personnel,national_code,' . $personnelRequest->id,
-            'phone' => 'required|string|max:20',
-            'preferred_center_id' => 'required|exists:centers,id',
-            'province_id' => 'nullable|exists:provinces,id',
-            'notes' => 'nullable|string|max:1000',
+        try {
+            $this->personnelService->updateRequest($personnelRequest, $request->validated());
 
-            // همراهان
-            'family_members' => 'nullable|array|max:10',
-            'family_members.*.full_name' => 'required|string|max:255',
-            'family_members.*.relation' => 'required|string|in:همسر,فرزند,پدر,مادر,سایر',
-            'family_members.*.national_code' => 'required|string|size:10',
-            'family_members.*.birth_date' => 'nullable|string|max:10',
-            'family_members.*.gender' => 'required|in:male,female',
-        ]);
+            return redirect()
+                ->route('personnel-requests.show', $personnelRequest)
+                ->with('success', 'درخواست با موفقیت ویرایش شد');
 
-        $personnelRequest->update($validated);
-
-        return redirect()
-            ->route('personnel-requests.show', $personnelRequest)
-            ->with('success', 'درخواست با موفقیت ویرایش شد');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'خطا در ویرایش درخواست: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -193,44 +200,45 @@ class PersonnelRequestController extends Controller
      */
     public function approve(Personnel $personnelRequest)
     {
-        if ($personnelRequest->status !== Personnel::STATUS_PENDING) {
+        $this->authorize('approve', $personnelRequest);
+
+        try {
+            $this->personnelService->approve($personnelRequest, auth()->user());
+
             return redirect()
-                ->route('personnel-requests.show', $personnelRequest)
-                ->with('error', 'این درخواست قبلاً بررسی شده است');
+                ->route('introduction-letters.create', ['personnel_id' => $personnelRequest->id])
+                ->with('success', 'درخواست تأیید شد. اکنون می‌توانید معرفی‌نامه صادر کنید');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'خطا در تأیید درخواست: ' . $e->getMessage());
         }
-
-        $personnelRequest->update([
-            'status' => Personnel::STATUS_APPROVED,
-        ]);
-
-        return redirect()
-            ->route('personnel-requests.show', $personnelRequest)
-            ->with('success', 'درخواست تأیید شد. اکنون می‌توانید معرفی‌نامه صادر کنید');
     }
 
     /**
      * Reject a request
      */
-    public function reject(Request $request, Personnel $personnelRequest)
+    public function reject(RejectPersonnelRequest $request, Personnel $personnelRequest)
     {
-        if ($personnelRequest->status !== Personnel::STATUS_PENDING) {
+        $this->authorize('reject', $personnelRequest);
+
+        try {
+            $this->personnelService->reject(
+                $personnelRequest,
+                auth()->user(),
+                $request->rejection_reason
+            );
+
             return redirect()
-                ->route('personnel-requests.show', $personnelRequest)
-                ->with('error', 'این درخواست قبلاً بررسی شده است');
+                ->route('personnel-requests.index')
+                ->with('success', 'درخواست رد شد');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'خطا در رد درخواست: ' . $e->getMessage());
         }
-
-        $validated = $request->validate([
-            'rejection_reason' => 'required|string|max:1000',
-        ]);
-
-        $personnelRequest->update([
-            'status' => Personnel::STATUS_REJECTED,
-            'notes' => $validated['rejection_reason'],
-        ]);
-
-        return redirect()
-            ->route('personnel-requests.index')
-            ->with('success', 'درخواست رد شد');
     }
 
     /**
@@ -238,20 +246,19 @@ class PersonnelRequestController extends Controller
      */
     public function destroy(Personnel $personnelRequest)
     {
-        // Only allow deleting pending or rejected requests
-        if ($personnelRequest->status === Personnel::STATUS_APPROVED) {
-            // Check if has introduction letters
-            if ($personnelRequest->introductionLetters()->exists()) {
-                return redirect()
-                    ->route('personnel-requests.show', $personnelRequest)
-                    ->with('error', 'نمی‌توان درخواستی که معرفی‌نامه دارد را حذف کرد');
-            }
+        $this->authorize('delete', $personnelRequest);
+
+        try {
+            $this->personnelService->deleteRequest($personnelRequest);
+
+            return redirect()
+                ->route('personnel-requests.index')
+                ->with('success', 'درخواست حذف شد');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'خطا در حذف درخواست: ' . $e->getMessage());
         }
-
-        $personnelRequest->delete();
-
-        return redirect()
-            ->route('personnel-requests.index')
-            ->with('success', 'درخواست حذف شد');
     }
 }

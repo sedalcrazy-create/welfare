@@ -40,6 +40,7 @@ class Personnel extends Model
         'status',
         'registration_source',
         'preferred_center_id',
+        'preferred_period_id',
         'notes',
         'tracking_code',
     ];
@@ -113,6 +114,11 @@ class Personnel extends Model
     public function preferredCenter(): BelongsTo
     {
         return $this->belongsTo(Center::class, 'preferred_center_id');
+    }
+
+    public function preferredPeriod(): BelongsTo
+    {
+        return $this->belongsTo(Period::class, 'preferred_period_id');
     }
 
     public function getLastUsageForCenter(int $centerId): ?UsageHistory

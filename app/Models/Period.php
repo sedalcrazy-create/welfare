@@ -16,6 +16,8 @@ class Period extends Model
         'center_id',
         'season_id',
         'code',
+        'title',
+        'description',
         'start_date',
         'end_date',
         'jalali_start_date',
@@ -23,6 +25,7 @@ class Period extends Model
         'capacity',
         'reserved_count',
         'status',
+        'season_type',
     ];
 
     protected $casts = [
@@ -57,6 +60,16 @@ class Period extends Model
         return $this->hasMany(Reservation::class);
     }
 
+    public function personnelRequests(): HasMany
+    {
+        return $this->hasMany(Personnel::class, 'preferred_period_id');
+    }
+
+    public function introductionLetters(): HasMany
+    {
+        return $this->hasMany(IntroductionLetter::class, 'period_id');
+    }
+
     public function getAvailableCapacity(): int
     {
         return max(0, $this->capacity - $this->reserved_count);
@@ -72,6 +85,58 @@ class Period extends Model
         return $this->start_date->diffInDays($this->end_date);
     }
 
+    /**
+     * Get registered count for Phase 1 (personnel requests + introduction letters)
+     */
+    public function getRegisteredCount(): int
+    {
+        return $this->personnelRequests()
+            ->whereIn('status', [Personnel::STATUS_PENDING, Personnel::STATUS_APPROVED])
+            ->count();
+    }
+
+    /**
+     * Get remaining capacity for Phase 1
+     */
+    public function getRemainingCapacity(): int
+    {
+        return max(0, $this->capacity - $this->getRegisteredCount());
+    }
+
+    /**
+     * Check if period is available for registration
+     */
+    public function isAvailable(): bool
+    {
+        return $this->status === self::STATUS_OPEN
+            && $this->getRemainingCapacity() > 0
+            && $this->end_date >= now();
+    }
+
+    /**
+     * Get start date in Jalali format
+     */
+    public function getStartDateJalaliAttribute(): string
+    {
+        return \Morilog\Jalali\Jalalian::fromCarbon($this->start_date)->format('Y/m/d');
+    }
+
+    /**
+     * Get end date in Jalali format
+     */
+    public function getEndDateJalaliAttribute(): string
+    {
+        return \Morilog\Jalali\Jalalian::fromCarbon($this->end_date)->format('Y/m/d');
+    }
+
+    /**
+     * Get duration in days
+     */
+    public function getDurationDaysAttribute(): int
+    {
+        return $this->start_date->diffInDays($this->end_date) + 1;
+    }
+
     public function scopeOpen($query)
     {
         return $query->where('status', self::STATUS_OPEN);
@@ -80,5 +145,11 @@ class Period extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('start_date', '>', now());
+    }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('status', self::STATUS_OPEN)
+            ->where('end_date', '>=', now());
     }
 }

@@ -131,5 +131,25 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
         Route::patch('registration-control/{registrationControl}', [RegistrationControlController::class, 'update'])->name('registration-control.update');
         Route::patch('registration-control/{registrationControl}/toggle', [RegistrationControlController::class, 'toggleStatus'])->name('registration-control.toggle');
         Route::delete('registration-control/{registrationControl}', [RegistrationControlController::class, 'destroy'])->name('registration-control.destroy');
+
+        // Phase 1: Quota Management (NEW)
+        Route::prefix('quotas')->name('quotas.')->group(function () {
+            Route::get('users/{user}', [\App\Http\Controllers\Admin\QuotaController::class, 'index'])->name('index');
+            Route::post('users/{user}/allocate', [\App\Http\Controllers\Admin\QuotaController::class, 'allocate'])->name('allocate');
+            Route::patch('quotas/{quota}', [\App\Http\Controllers\Admin\QuotaController::class, 'update'])->name('update');
+            Route::post('quotas/{quota}/reset', [\App\Http\Controllers\Admin\QuotaController::class, 'reset'])->name('reset');
+            Route::post('quotas/{quota}/increase', [\App\Http\Controllers\Admin\QuotaController::class, 'increase'])->name('increase');
+            Route::post('quotas/{quota}/decrease', [\App\Http\Controllers\Admin\QuotaController::class, 'decrease'])->name('decrease');
+        });
+
+        // Phase 1: Personnel Approval (NEW)
+        Route::prefix('personnel-approvals')->name('personnel-approvals.')->group(function () {
+            Route::get('pending', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'pending'])->name('pending');
+            Route::get('{personnel}', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'show'])->name('show');
+            Route::post('{personnel}/approve', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'approve'])->name('approve');
+            Route::post('{personnel}/reject', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'reject'])->name('reject');
+            Route::post('bulk-approve', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'bulkApprove'])->name('bulk-approve');
+            Route::post('bulk-reject', [\App\Http\Controllers\Admin\PersonnelApprovalController::class, 'bulkReject'])->name('bulk-reject');
+        });
     });
 });
