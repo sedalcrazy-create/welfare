@@ -808,6 +808,17 @@
                         @endif
                     </a>
                 </div>
+                @role('super_admin|admin')
+                <div class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.personnel-approvals.*') ? 'active' : '' }}" href="{{ route('admin.personnel-approvals.pending') }}">
+                        <i class="bi bi-clipboard-check"></i>
+                        <span>تأیید درخواست‌ها</span>
+                        @if($pendingCount > 0)
+                            <span class="nav-badge" style="background: var(--danger);">{{ $pendingCount }}</span>
+                        @endif
+                    </a>
+                </div>
+                @endrole
                 <div class="nav-item">
                     <a class="nav-link {{ request()->routeIs('introduction-letters.*') ? 'active' : '' }}" href="{{ route('introduction-letters.index') }}">
                         <i class="bi bi-file-earmark-text"></i>
