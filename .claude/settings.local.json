@@ -19,7 +19,29 @@
       "Bash(git push:*)",
       "Bash(git fetch:*)",
       "Bash(git checkout:*)",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git pull:*)",
+      "Bash(npx playwright install chromium)",
+      "Bash(npm run screenshots:*)",
+      "Bash(node scripts/take-screenshots.js:*)",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(cmd.exe /c \"npm --version\")",
+      "Bash(pip install:*)",
+      "Bash(python -m playwright:*)",
+      "Bash(python scripts/take_screenshots.py:*)",
+      "Bash(python scripts/create_standalone_guide.py:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(php artisan migrate:*)",
+      "Bash(\"/c/Program Files/Docker/Docker/resources/bin/docker-compose\" exec -T app php artisan migrate --force)",
+      "Bash(\"/c/Program Files/Docker/Docker/resources/bin/docker-compose\" ps)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(npx playwright:*)",
+      "Bash(export PLAYWRIGHT_BROWSERS_PATH=\"C:/Users/sedal/AppData/Local/ms-playwright\")",
+      "Bash(npx --yes @playwright/test@1.40.0 test:*)",
+      "Bash(playwright test:*)"
     ]
   }
 }

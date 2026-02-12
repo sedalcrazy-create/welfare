@@ -1,10 +1,18 @@
 {
   "name": "welfare-v2",
-  "version": "1.0.0",
-  "description": "Welfare System - Playwright Screenshots",
+  "version": "2.0.0",
+  "description": "سامانه جامع مدیریت مراکز رفاهی بانک ملی ایران",
   "private": true,
   "scripts": {
-    "screenshots": "node scripts/take-screenshots.js"
+    "screenshots": "node scripts/take-screenshots.js",
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:e2e": "playwright test tests/e2e",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
 }
