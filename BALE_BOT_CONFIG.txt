@@ -1,0 +1,93 @@
+====================================================================
+  کانفیگ بات بله برای اضافه کردن به فایل .env سرور
+====================================================================
+
+توضیح: این تنظیمات را به فایل .env روی سرور اضافه کنید
+
+====================================================================
+
+# Bale Bot Configuration
+BALE_BOT_TOKEN=1159941038:QJVEuVhVJOZCtQfy4n38uMdTGDMzastM_WE
+BALE_BOT_USERNAME=welfarebot
+BALE_API_BASE_URL=https://tapi.bale.ai/bot
+BALE_WEBHOOK_URL=https://ria.jafamhis.ir/welfare/api/bale/webhook
+
+====================================================================
+  نکات مهم:
+====================================================================
+
+1. BALE_BOT_TOKEN:
+   - Token کامل دریافتی از BotFather
+   - ✅ درست است
+
+2. BALE_BOT_USERNAME:
+   - بدون @ (فقط "welfarebot")
+   - ⚠️ اصلاح شد: @ حذف شد
+
+3. BALE_API_BASE_URL:
+   - URL پایه API بله
+   - ⚠️ اصلاح شد: از BALE_API_URL به BALE_API_BASE_URL تغییر کرد
+
+4. BALE_WEBHOOK_URL:
+   - URL عمومی webhook بدون token
+   - ✅ درست است
+
+====================================================================
+  نحوه اعمال در سرور:
+====================================================================
+
+# 1. اتصال به سرور
+ssh root@37.152.174.87
+
+# 2. ویرایش فایل .env
+cd /var/www/welfare
+nano .env
+
+# 3. اضافه کردن این 4 خط به انتهای فایل:
+BALE_BOT_TOKEN=1159941038:QJVEuVhVJOZCtQfy4n38uMdTGDMzastM_WE
+BALE_BOT_USERNAME=welfarebot
+BALE_API_BASE_URL=https://tapi.bale.ai/bot
+BALE_WEBHOOK_URL=https://ria.jafamhis.ir/welfare/api/bale/webhook
+
+# 4. ذخیره و خروج (Ctrl+X, Y, Enter)
+
+# 5. پاک کردن config cache
+docker-compose exec app php artisan config:clear
+
+# 6. ری‌استارت services
+docker-compose restart app queue
+
+# 7. Setup webhook
+docker-compose exec app php artisan bale:setup-webhook
+
+# 8. بررسی webhook
+docker-compose exec app php artisan bale:setup-webhook --info
+
+====================================================================
+  URL کامل Webhook (برای مرجع):
+====================================================================
+
+https://ria.jafamhis.ir/welfare/api/bale/webhook/1159941038:QJVEuVhVJOZCtQfy4n38uMdTGDMzastM_WE
+
+این URL به صورت خودکار توسط دستور bale:setup-webhook ساخته می‌شود.
+
+====================================================================
+  تست بات:
+====================================================================
+
+1. در بله جستجو کنید: @welfarebot
+2. دکمه Start را بزنید
+3. دستور /start ارسال کنید
+4. باید پیام خوش‌آمدگویی دریافت کنید
+
+====================================================================
+  لینک مستقیم بات:
+====================================================================
+
+bale.ai/welfarebot
+
+یا
+
+https://web.bale.ai/welfarebot
+
+====================================================================
