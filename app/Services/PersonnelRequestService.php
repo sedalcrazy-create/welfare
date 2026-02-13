@@ -88,8 +88,8 @@ class PersonnelRequestService
                 'approved_at' => now(),
             ]);
 
-            // اینجا می‌توان notification ارسال کرد
-            // event(new PersonnelApproved($personnel));
+            // ارسال notification به بات بله
+            event(new \App\Events\PersonnelApproved($personnel));
 
             return $personnel->fresh();
         });
@@ -115,8 +115,8 @@ class PersonnelRequestService
             // برگشت سهمیه (اگر قبلاً کسر شده بود - در فاز 1 نیاز نیست)
             // $this->quotaService->refundQuota($personnel->createdBy, $personnel->preferredCenter);
 
-            // اینجا می‌توان notification ارسال کرد
-            // event(new PersonnelRejected($personnel, $reason));
+            // ارسال notification به بات بله
+            event(new \App\Events\PersonnelRejected($personnel, $reason));
 
             return $personnel->fresh();
         });

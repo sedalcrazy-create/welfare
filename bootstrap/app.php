@@ -24,6 +24,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
     })
+    ->withEvents([
+        discover: [
+            __DIR__.'/../app/Listeners',
+        ],
+    ])
+    ->withProviders([
+        \App\Providers\EventServiceProvider::class,
+    ])
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
