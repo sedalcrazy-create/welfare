@@ -45,3 +45,5 @@ tmpclaude-*
 *.dll
 *.dcu
 *.~*
+*.backup
+*.bak

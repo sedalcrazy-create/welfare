@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "screenshots": "node scripts/take-screenshots.js",
+    "screenshots:phase1": "node scripts/take-phase1-screenshots.js",
     "test": "playwright test",
     "test:api": "playwright test tests/api",
     "test:e2e": "playwright test tests/e2e",

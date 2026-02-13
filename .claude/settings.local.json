@@ -41,7 +41,10 @@
       "Bash(npx playwright:*)",
       "Bash(export PLAYWRIGHT_BROWSERS_PATH=\"C:/Users/sedal/AppData/Local/ms-playwright\")",
       "Bash(npx --yes @playwright/test@1.40.0 test:*)",
-      "Bash(playwright test:*)"
+      "Bash(playwright test:*)",
+      "Bash(start:*)",
+      "Bash(chmod:*)",
+      "Bash(./deploy-phase1.sh:*)"
     ]
   }
 }
