@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PersonnelRequestController;
 use App\Http\Controllers\Api\CenterController;
 use App\Http\Controllers\Api\PeriodController;
+use App\Http\Controllers\Api\BaleWebhookController;
 
 // API routes will be implemented later
 // For now, just a simple status endpoint
@@ -32,6 +33,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/personnel-requests/check-status', [PersonnelRequestController::class, 'checkStatus']);
     Route::get('/personnel-requests/letters', [PersonnelRequestController::class, 'getLetters']);
 });
+
+// Bale Bot Webhook (no CSRF protection needed - handled by token in URL)
+Route::post('/bale/webhook/{token}', [BaleWebhookController::class, 'handle'])->name('bale.webhook');
 
 // Legacy Bale Bot API (Backward compatibility)
 Route::prefix('bale')->group(function () {
