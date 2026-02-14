@@ -17,6 +17,7 @@ class LotteryEntry extends Model
         'province_id',
         'family_count',
         'guests',
+        'selected_guest_ids',
         'preferred_unit_types',
         'priority_score',
         'rank',
@@ -30,6 +31,7 @@ class LotteryEntry extends Model
     protected $casts = [
         'family_count' => 'integer',
         'guests' => 'array',
+        'selected_guest_ids' => 'array',
         'preferred_unit_types' => 'array',
         'priority_score' => 'decimal:2',
         'rank' => 'integer',
@@ -68,6 +70,26 @@ class LotteryEntry extends Model
     public function reservation(): HasOne
     {
         return $this->hasOne(Reservation::class);
+    }
+
+    /**
+     * مهمانان انتخاب شده برای این سفر
+     */
+    public function selectedGuests()
+    {
+        if (empty($this->selected_guest_ids)) {
+            return collect();
+        }
+
+        return Guest::whereIn('id', $this->selected_guest_ids)->get();
+    }
+
+    /**
+     * تعداد کل افراد (پرسنل + مهمانان انتخاب شده)
+     */
+    public function getTotalPersonsCount(): int
+    {
+        return 1 + (is_array($this->selected_guest_ids) ? count($this->selected_guest_ids) : 0);
     }
 
     public function isWinner(): bool

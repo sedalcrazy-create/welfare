@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Personnel extends Model
@@ -125,6 +126,38 @@ class Personnel extends Model
     public function preferredPeriod(): BelongsTo
     {
         return $this->belongsTo(Period::class, 'preferred_period_id');
+    }
+
+    /**
+     * مهمانان این پرسنل (many-to-many)
+     */
+    public function guests(): BelongsToMany
+    {
+        return $this->belongsToMany(Guest::class, 'personnel_guests')
+            ->withPivot('notes')
+            ->withTimestamps();
+    }
+
+    /**
+     * تعداد مهمانان بانکی
+     */
+    public function getBankAffiliatedGuestsCount(): int
+    {
+        return $this->guests()
+            ->get()
+            ->filter(fn($guest) => $guest->isBankAffiliated())
+            ->count();
+    }
+
+    /**
+     * تعداد مهمانان متفرقه
+     */
+    public function getNonBankAffiliatedGuestsCount(): int
+    {
+        return $this->guests()
+            ->get()
+            ->filter(fn($guest) => !$guest->isBankAffiliated())
+            ->count();
     }
 
     public function getLastUsageForCenter(int $centerId): ?UsageHistory

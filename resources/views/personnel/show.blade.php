@@ -157,19 +157,22 @@
                 </div>
             </div>
 
-            {{-- Family Members --}}
+            {{-- Guests Management (NEW SYSTEM) --}}
+            @include('personnel.partials._guests_tab')
+
+            {{-- Family Members (OLD SYSTEM - from Bale Bot JSON) --}}
             @if($personnel->hasFamilyMembers())
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="bi bi-people-fill"></i>
-                        همراهان ({{ $personnel->getFamilyMembersCount() }} نفر)
+                        همراهان (ثبت قدیمی - {{ $personnel->getFamilyMembersCount() }} نفر)
                     </h5>
                     <div>
-                        <span class="badge bg-success-subtle text-success">
+                        <span class="badge bg-light text-dark">
                             <i class="bi bi-bank"></i> بانکی: {{ $personnel->getBankAffiliatedMembersCount() }}
                         </span>
-                        <span class="badge bg-warning-subtle text-warning">
+                        <span class="badge bg-light text-dark">
                             <i class="bi bi-person"></i> غیر بانکی: {{ $personnel->getNonBankAffiliatedMembersCount() }}
                         </span>
                     </div>
