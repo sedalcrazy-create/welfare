@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#00A6A6" />
+    <title>سامانه رفاهی بانک ملی</title>
+    <meta name="description" content="مدیریت معرفی‌نامه مراکز رفاهی بانک ملی ایران" />
+
+    <!-- Bale Mini App SDK -->
+    <script src="https://tapp-api.bale.ai/js/bale-miniapp.js"></script>
+
+    <!-- Vazirmatn Font -->
+    <style>
+      @font-face {
+        font-family: 'Vazirmatn';
+        font-style: normal;
+        font-weight: 300 900;
+        font-display: swap;
+        src: url('/assets/fonts/Vazirmatn-Variable.woff2') format('woff2');
+      }
+
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      html, body {
+        overscroll-behavior: none;
+        touch-action: pan-x pan-y;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-900 antialiased">
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

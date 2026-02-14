@@ -827,6 +827,12 @@
                 </div>
                 @role('super_admin|admin')
                 <div class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+                        <i class="bi bi-person-gear"></i>
+                        <span>مدیریت کاربران</span>
+                    </a>
+                </div>
+                <div class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.user-center-quota.*') ? 'active' : '' }}" href="{{ route('admin.user-center-quota.index') }}">
                         <i class="bi bi-ticket-perforated"></i>
                         <span>سهمیه (به تفکیک مرکز)</span>

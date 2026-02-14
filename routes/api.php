@@ -5,6 +5,10 @@ use App\Http\Controllers\Api\PersonnelRequestController;
 use App\Http\Controllers\Api\CenterController;
 use App\Http\Controllers\Api\PeriodController;
 use App\Http\Controllers\Api\BaleWebhookController;
+use App\Http\Controllers\Api\MiniApp\AuthController as MiniAppAuthController;
+use App\Http\Controllers\Api\MiniApp\PersonnelController as MiniAppPersonnelController;
+use App\Http\Controllers\Api\MiniApp\GuestsController as MiniAppGuestsController;
+use App\Http\Controllers\Api\MiniApp\LettersController as MiniAppLettersController;
 
 // API routes will be implemented later
 // For now, just a simple status endpoint
@@ -50,4 +54,46 @@ Route::prefix('bale')->group(function () {
 
     // Get personnel introduction letters
     Route::post('/letters', [PersonnelRequestController::class, 'getLetters']);
+});
+
+// Bale Mini App API
+Route::prefix('mini-app')->group(function () {
+    // Public - Authentication
+    Route::post('/auth/verify', [MiniAppAuthController::class, 'verify']);
+
+    // Protected routes (require Sanctum authentication)
+    Route::middleware('auth:sanctum')->group(function () {
+        // Auth
+        Route::get('/auth/me', [MiniAppAuthController::class, 'me']);
+        Route::post('/auth/logout', [MiniAppAuthController::class, 'logout']);
+
+        // Personnel
+        Route::get('/personnel/me', [MiniAppPersonnelController::class, 'me']);
+        Route::post('/personnel/register', [MiniAppPersonnelController::class, 'register']);
+        Route::patch('/personnel/update', [MiniAppPersonnelController::class, 'update']);
+        Route::get('/personnel/provinces', [MiniAppPersonnelController::class, 'provinces']);
+
+        // Guests
+        Route::get('/guests', [MiniAppGuestsController::class, 'index']);
+        Route::post('/guests', [MiniAppGuestsController::class, 'store']);
+        Route::get('/guests/{guest}', [MiniAppGuestsController::class, 'show']);
+        Route::patch('/guests/{guest}', [MiniAppGuestsController::class, 'update']);
+        Route::delete('/guests/{guest}', [MiniAppGuestsController::class, 'destroy']);
+
+        // Personnel Guests
+        Route::get('/personnel-guests', [MiniAppGuestsController::class, 'personnelGuests']);
+        Route::get('/personnel-guests/search', [MiniAppGuestsController::class, 'searchPersonnel']);
+        Route::post('/personnel-guests', [MiniAppGuestsController::class, 'addPersonnelGuest']);
+        Route::delete('/personnel-guests/{personnelGuest}', [MiniAppGuestsController::class, 'removePersonnelGuest']);
+
+        // Introduction Letters
+        Route::get('/letters', [MiniAppLettersController::class, 'index']);
+        Route::post('/letters', [MiniAppLettersController::class, 'store']);
+        Route::get('/letters/{letter}', [MiniAppLettersController::class, 'show']);
+        Route::delete('/letters/{letter}/cancel', [MiniAppLettersController::class, 'cancel']);
+
+        // Centers & Quotas
+        Route::get('/centers', [MiniAppLettersController::class, 'centers']);
+        Route::get('/quotas', [MiniAppLettersController::class, 'quotas']);
+    });
 });
