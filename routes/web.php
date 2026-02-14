@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\UserCenterQuotaController;
 use App\Http\Controllers\Admin\RegistrationControlController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\PersonnelGuestController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -135,6 +136,10 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
 
     // Admin Management (Admin only)
     Route::prefix('admin')->name('admin.')->middleware('role:super_admin|admin')->group(function () {
+        // User Management (مدیریت کاربران)
+        Route::resource('users', UserController::class);
+        Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
         // Old per-user quota (deprecated but keep for backward compatibility)
         Route::get('user-quota', [UserQuotaController::class, 'index'])->name('user-quota.index');
         Route::patch('user-quota/{user}', [UserQuotaController::class, 'update'])->name('user-quota.update');

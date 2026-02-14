@@ -8,10 +8,24 @@ use Carbon\Carbon;
 class DateService
 {
     /**
+     * تبدیل اعداد فارسی به انگلیسی
+     */
+    private function convertPersianToEnglish(string $string): string
+    {
+        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        return str_replace($persian, $english, $string);
+    }
+
+    /**
      * تبدیل تاریخ شمسی به میلادی
      */
     public function jalaliToGregorian(string $jalaliDate): string
     {
+        // تبدیل اعداد فارسی به انگلیسی
+        $jalaliDate = $this->convertPersianToEnglish($jalaliDate);
+
         $parts = explode('/', $jalaliDate);
         if (count($parts) !== 3) {
             return now()->format('Y-m-d');
@@ -26,6 +40,9 @@ class DateService
      */
     public function jalaliToCarbon(string $jalaliDate): Carbon
     {
+        // تبدیل اعداد فارسی به انگلیسی
+        $jalaliDate = $this->convertPersianToEnglish($jalaliDate);
+
         $parts = explode('/', $jalaliDate);
         if (count($parts) !== 3) {
             return now();
@@ -48,6 +65,9 @@ class DateService
      */
     public function isValidJalaliDate(string $jalaliDate): bool
     {
+        // تبدیل اعداد فارسی به انگلیسی
+        $jalaliDate = $this->convertPersianToEnglish($jalaliDate);
+
         $parts = explode('/', $jalaliDate);
         if (count($parts) !== 3) {
             return false;

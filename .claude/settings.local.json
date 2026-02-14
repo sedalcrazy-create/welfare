@@ -49,7 +49,8 @@
       "Bash(for:*)",
       "Bash(do echo \"Test $i:\")",
       "Bash(done)",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(\"F:/New folder/welfare-V2/SERVER_DEPLOYMENT_GUIDE.md\" << 'EOF'\n# 🚀 راهنمای Deploy روی سرور\n\n## 📊 وضعیت فعلی\n\n**✅ تغییرات با موفقیت به سرور منتقل شد:**\n```\ngit pull: ✅ انجام شد\n17 فایل دریافت شد \\(1,917 خط جدید\\)\n```\n\n**🔄 وضعیت Docker:**\n```\nدر حال build کردن images...\nزمان تقریبی: 3-5 دقیقه\n```\n\n---\n\n## ✅ خلاصه: چه کارهایی انجام شد\n\n1. **Git**: تغییرات از GitHub دریافت شد \\(git pull\\)\n2. **Docker**: در حال build کردن containers\n3. **Migrations**: آماده اجرا \\(منتظر آماده شدن Docker\\)\n\n---\n\n## 🎯 مرحله بعدی \\(بعد از 5 دقیقه\\)\n\n### روش ساده:\n```bash\nchmod +x run-migrations-server.sh\n./run-migrations-server.sh\n```\n\n### یا دستی:\n```bash\nssh root@37.152.174.87\ncd /var/www/welfare\ndocker compose exec app php artisan migrate --force\ndocker compose exec app php artisan cache:clear\n```\n\n---\n\n## 🧪 تست\n\nURL: http://37.152.174.87:8083\nپرسنل → انتخاب پرسنل → تب \"مهمانان\"\n\n---\n\n**وضعیت:** ✅ Code آماده، منتظر اجرای migrations\nEOF)"
     ]
   }
 }
