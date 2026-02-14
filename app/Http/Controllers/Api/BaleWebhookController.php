@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessBaleMessage;
+use App\Jobs\ProcessBaleCallback;
 use App\Services\BaleBot\BaleService;
 use App\Services\BaleBot\BaleMessageHandler;
 use App\Services\BaleBot\BaleCallbackHandler;
@@ -68,7 +70,7 @@ class BaleWebhookController extends Controller
     }
 
     /**
-     * پردازش پیام‌های متنی
+     * پردازش پیام‌های متنی (Async via Queue)
      */
     private function processMessage(array $message): void
     {
@@ -77,15 +79,13 @@ class BaleWebhookController extends Controller
         $userId = $message['from']['id'] ?? null;
         $firstName = $message['from']['first_name'] ?? 'کاربر';
 
-        // ارسال typing action
-        $this->baleService->sendChatAction($chatId, 'typing');
-
-        // مدیریت دستورات و پیام‌های متنی
-        $this->messageHandler->handle($chatId, $userId, $text, $firstName, $message);
+        // مدیریت دستورات و پیام‌های متنی (Async via Queue)
+        // Typing action حذف شد برای سرعت بیشتر webhook
+        ProcessBaleMessage::dispatch($chatId, $userId, $text, $firstName, $message);
     }
 
     /**
-     * پردازش callback query ها (کلیک روی دکمه‌های inline)
+     * پردازش callback query ها (کلیک روی دکمه‌های inline) - Async
      */
     private function processCallbackQuery(array $callbackQuery): void
     {
@@ -95,11 +95,11 @@ class BaleWebhookController extends Controller
         $data = $callbackQuery['data'] ?? '';
         $userId = $callbackQuery['from']['id'];
 
-        // پاسخ سریع به callback (برای جلوگیری از timeout)
+        // پاسخ سریع به callback (sync - برای جلوگیری از timeout)
         $this->baleService->answerCallbackQuery($callbackId);
 
-        // پردازش callback
-        $this->callbackHandler->handle($chatId, $messageId, $userId, $data);
+        // پردازش callback (Async via Queue)
+        ProcessBaleCallback::dispatch($chatId, $messageId, $userId, $data);
     }
 
     /**

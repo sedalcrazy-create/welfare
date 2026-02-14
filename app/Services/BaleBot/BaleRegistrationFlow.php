@@ -42,7 +42,9 @@ class BaleRegistrationFlow
         $this->sessionManager->set($userId, 'temp_family_name', $name);
 
         $text = "✅ نام ثبت شد.\n\n";
-        $text .= "حالا <b>نسبت</b> این فرد با شما را انتخاب کنید:";
+        $text .= "حالا <b>نسبت</b> این فرد با شما را انتخاب کنید:\n\n";
+        $text .= "✅ <b>خانواده بانکی:</b> همسر، فرزند، پدر/مادر، پدر/مادر همسر\n";
+        $text .= "⚠️ <b>متفرقه:</b> دوست، فامیل، سایر";
 
         $keyboard = [
             [
@@ -52,6 +54,14 @@ class BaleRegistrationFlow
             [
                 BaleService::makeInlineButton('👨 پدر', 'family_relation:پدر'),
                 BaleService::makeInlineButton('👩 مادر', 'family_relation:مادر'),
+            ],
+            [
+                BaleService::makeInlineButton('👨‍🦳 پدر همسر', 'family_relation:پدر همسر'),
+                BaleService::makeInlineButton('👵 مادر همسر', 'family_relation:مادر همسر'),
+            ],
+            [
+                BaleService::makeInlineButton('🤝 دوست', 'family_relation:دوست'),
+                BaleService::makeInlineButton('👨‍👩‍👧 فامیل', 'family_relation:فامیل'),
             ],
             [
                 BaleService::makeInlineButton('👥 سایر', 'family_relation:سایر'),

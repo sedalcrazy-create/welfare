@@ -40,6 +40,8 @@ class BaleCallbackHandler
             'skip_family' => $this->registrationFlow->skipFamilyMembers($chatId, $userId),
             'family_relation' => $this->handleFamilyRelation($chatId, $userId, $param),
             'family_gender' => $this->handleFamilyGender($chatId, $userId, $param),
+            'add_another_family' => $this->handleAddAnotherFamily($chatId, $userId),
+            'family_done' => $this->handleFamilyDone($chatId, $userId),
             'confirm_register' => $this->registrationFlow->confirmAndSubmit($chatId, $userId),
             'edit_info' => $this->handleEditInfo($chatId, $userId),
             'cancel_register' => $this->handleCancelRegistration($chatId, $userId),
@@ -287,25 +289,52 @@ class BaleCallbackHandler
         $this->sessionManager->forget($userId, 'temp_family_birth_date');
 
         $currentIndex = $this->sessionManager->get($userId, 'current_family_index', 0);
-        $totalCount = $this->sessionManager->get($userId, 'family_members_count', 0);
+        $registeredCount = count($this->sessionManager->get($userId, 'family_members', []));
 
-        if ($currentIndex + 1 < $totalCount) {
-            // همراه بعدی
-            $this->sessionManager->set($userId, 'current_family_index', $currentIndex + 1);
+        // نمایش منوی انتخاب بعد از ثبت هر همراه
+        $text = "✅ همراه شماره " . $registeredCount . " ثبت شد!\n\n";
+        $text .= "━━━━━━━━━━━━━━━━━━\n";
 
-            $text = "✅ همراه " . ($currentIndex + 1) . " ثبت شد.\n\n";
-            $text .= "▶️ حالا همراه " . ($currentIndex + 2) . ":\n\n";
-
-            $this->baleService->sendMessage($chatId, $text);
-            $this->registrationFlow->startAddingFamilyMember($chatId, $userId);
-        } else {
-            // همه همراهان ثبت شدند - رفتن به مرحله تأیید نهایی
-            $text = "✅ همراه " . ($currentIndex + 1) . " ثبت شد.\n\n";
-            $text .= "🎉 تمام همراهان ثبت شدند!";
-
-            $this->baleService->sendMessage($chatId, $text);
-            $this->registrationFlow->showFinalConfirmation($chatId, $userId);
+        // نمایش لیست همراهان ثبت شده
+        $familyMembers = $this->sessionManager->get($userId, 'family_members', []);
+        $text .= "👥 <b>همراهان ثبت شده:</b>\n\n";
+        foreach ($familyMembers as $index => $member) {
+            $isBankAffiliated = \App\Models\Personnel::isFamilyMemberBankAffiliated($member['relation'] ?? '');
+            $badge = $isBankAffiliated ? '✅ بانکی' : '⚠️ غیر بانکی';
+            $text .= ($index + 1) . ". {$member['full_name']} ({$member['relation']}) {$badge}\n";
         }
+
+        $text .= "\n━━━━━━━━━━━━━━━━━━\n";
+        $text .= "💡 می‌خواهید همراه دیگری اضافه کنید؟";
+
+        $keyboard = [
+            [
+                BaleService::makeInlineButton('➕ افزودن همراه دیگر', 'add_another_family'),
+            ],
+            [
+                BaleService::makeInlineButton('✅ تمام - ادامه فرایند', 'family_done'),
+            ],
+        ];
+
+        $this->baleService->sendMessageWithInlineKeyboard($chatId, $text, $keyboard);
+        $this->sessionManager->setCurrentStep($userId, 'awaiting_family_action');
+    }
+
+    /**
+     * افزودن همراه دیگر
+     */
+    private function handleAddAnotherFamily(int $chatId, int $userId): void
+    {
+        $this->sessionManager->incrementFamilyIndex($userId);
+        $this->registrationFlow->startAddingFamilyMember($chatId, $userId);
+    }
+
+    /**
+     * اتمام اضافه کردن همراهان
+     */
+    private function handleFamilyDone(int $chatId, int $userId): void
+    {
+        $this->registrationFlow->showFinalConfirmation($chatId, $userId);
     }
 
     /**

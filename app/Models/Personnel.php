@@ -74,11 +74,17 @@ class Personnel extends Model
     public const SOURCE_BALE_BOT = 'bale_bot';
     public const SOURCE_WEB = 'web';
 
-    // Family member relations
+    // Family member relations - خانواده بانکی
     public const RELATION_SPOUSE = 'همسر';
     public const RELATION_CHILD = 'فرزند';
     public const RELATION_FATHER = 'پدر';
     public const RELATION_MOTHER = 'مادر';
+    public const RELATION_FATHER_IN_LAW = 'پدر همسر';
+    public const RELATION_MOTHER_IN_LAW = 'مادر همسر';
+
+    // Family member relations - متفرقه/غیر بانکی
+    public const RELATION_FRIEND = 'دوست';
+    public const RELATION_RELATIVE = 'فامیل';
     public const RELATION_OTHER = 'سایر';
 
     public function province(): BelongsTo
@@ -215,6 +221,56 @@ class Personnel extends Model
     public function hasFamilyMembers(): bool
     {
         return !empty($this->family_members);
+    }
+
+    /**
+     * تشخیص اینکه یک همراه بانکی است یا غیر بانکی (بر اساس نسبت)
+     *
+     * خانواده بانکی: همسر، فرزند، پدر، مادر، پدر همسر، مادر همسر
+     * متفرقه: دوست، فامیل، سایر
+     *
+     * @param string $relation نسبت
+     * @return bool
+     */
+    public static function isFamilyMemberBankAffiliated(string $relation): bool
+    {
+        // خانواده تحت پوشش بیمه بانک
+        return in_array($relation, [
+            self::RELATION_SPOUSE,          // همسر
+            self::RELATION_CHILD,           // فرزند
+            self::RELATION_FATHER,          // پدر
+            self::RELATION_MOTHER,          // مادر
+            self::RELATION_FATHER_IN_LAW,   // پدر همسر
+            self::RELATION_MOTHER_IN_LAW,   // مادر همسر
+        ]);
+    }
+
+    /**
+     * تعداد همراهان بانکی
+     */
+    public function getBankAffiliatedMembersCount(): int
+    {
+        if (!$this->family_members) {
+            return 0;
+        }
+
+        return collect($this->family_members)
+            ->filter(fn($member) => self::isFamilyMemberBankAffiliated($member['relation'] ?? ''))
+            ->count();
+    }
+
+    /**
+     * تعداد همراهان غیر بانکی
+     */
+    public function getNonBankAffiliatedMembersCount(): int
+    {
+        if (!$this->family_members) {
+            return 0;
+        }
+
+        return collect($this->family_members)
+            ->filter(fn($member) => !self::isFamilyMemberBankAffiliated($member['relation'] ?? ''))
+            ->count();
     }
 
     // Boot method for auto-calculating family_count

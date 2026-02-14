@@ -151,6 +151,15 @@ class BaleSessionManager
     }
 
     /**
+     * افزایش شمارنده همراهان (برای افزودن همراه بعدی)
+     */
+    public function incrementFamilyIndex(int $userId): void
+    {
+        $currentIndex = $this->get($userId, 'current_family_index', 0);
+        $this->set($userId, 'current_family_index', $currentIndex + 1);
+    }
+
+    /**
      * دریافت لیست همراهان
      */
     public function getFamilyMembers(int $userId): array
