@@ -16,6 +16,9 @@ services:
     depends_on:
       - postgres
       - redis
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   nginx:
     image: nginx:alpine
@@ -72,6 +75,9 @@ services:
     depends_on:
       - app
       - redis
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
   scheduler:
     build:
@@ -87,6 +93,9 @@ services:
       - welfare_network
     depends_on:
       - app
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
 networks:
   welfare_network:
