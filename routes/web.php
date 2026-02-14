@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserQuotaController;
 use App\Http\Controllers\Admin\UserCenterQuotaController;
 use App\Http\Controllers\Admin\RegistrationControlController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\PersonnelGuestController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -99,6 +100,16 @@ Route::middleware(['auth', 'role:super_admin|admin|provincial_admin|operator'])-
         Route::get('/{guest}', [GuestController::class, 'show'])->name('show');
         Route::patch('/{guest}', [GuestController::class, 'update'])->name('update');
         Route::delete('/{guest}', [GuestController::class, 'destroy'])->name('destroy');
+    });
+
+    // Personnel Guest Management (پرسنل‌ها که به عنوان همراه اضافه می‌شوند)
+    Route::prefix('personnel/{personnel}/personnel-guests')->name('personnel.personnel-guests.')->group(function () {
+        Route::get('/', [PersonnelGuestController::class, 'index'])->name('index');
+        Route::get('/search', [PersonnelGuestController::class, 'search'])->name('search');
+        Route::post('/', [PersonnelGuestController::class, 'store'])->name('store');
+        Route::get('/{guestPersonnel}', [PersonnelGuestController::class, 'show'])->name('show');
+        Route::patch('/{guestPersonnel}', [PersonnelGuestController::class, 'update'])->name('update');
+        Route::delete('/{guestPersonnel}', [PersonnelGuestController::class, 'destroy'])->name('destroy');
     });
 
     // Provinces Management

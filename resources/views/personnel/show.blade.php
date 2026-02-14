@@ -160,6 +160,9 @@
             {{-- Guests Management (NEW SYSTEM) --}}
             @include('personnel.partials._guests_tab')
 
+            {{-- Personnel Guests (همراهان پرسنل) --}}
+            @include('personnel.partials._personnel_guests_tab')
+
             {{-- Family Members (OLD SYSTEM - from Bale Bot JSON) --}}
             @if($personnel->hasFamilyMembers())
             <div class="card border-0 shadow-sm">

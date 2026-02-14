@@ -139,6 +139,38 @@ class Personnel extends Model
     }
 
     /**
+     * همراهان پرسنل این پرسنل (پرسنل‌هایی که به عنوان مهمان اضافه شده‌اند)
+     * مثال: زن و شوهر هر دو پرسنل هستند
+     */
+    public function personnelGuests(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Personnel::class,
+            'personnel_personnel_guests',
+            'personnel_id',
+            'guest_personnel_id'
+        )
+            ->withPivot('relation', 'notes')
+            ->withTimestamps();
+    }
+
+    /**
+     * پرسنل‌هایی که این پرسنل به عنوان مهمان آن‌ها اضافه شده
+     * (معکوس relation بالا)
+     */
+    public function hostPersonnel(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Personnel::class,
+            'personnel_personnel_guests',
+            'guest_personnel_id',
+            'personnel_id'
+        )
+            ->withPivot('relation', 'notes')
+            ->withTimestamps();
+    }
+
+    /**
      * تعداد مهمانان بانکی
      */
     public function getBankAffiliatedGuestsCount(): int
