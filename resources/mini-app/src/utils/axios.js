@@ -1,7 +1,20 @@
 import axios from 'axios'
 
+// Dynamic base URL based on hostname
+const getBaseURL = () => {
+  const hostname = window.location.hostname
+
+  // If on subdomain (welfare.darmanjoo.ir), use /api/mini-app
+  if (hostname === 'welfare.darmanjoo.ir') {
+    return '/api/mini-app'
+  }
+
+  // Otherwise use /welfare/api/mini-app (for ria.jafamhis.ir/welfare/)
+  return '/welfare/api/mini-app'
+}
+
 const api = axios.create({
-  baseURL: '/welfare/api/mini-app',
+  baseURL: getBaseURL(),
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
