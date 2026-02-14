@@ -201,43 +201,72 @@ class BaleService
     }
 
     /**
-     * فراخوانی API بله
+     * فراخوانی API بله با retry mechanism
      */
-    private function callApi(string $method, array $params = []): array
+    private function callApi(string $method, array $params = [], int $retries = 3): array
     {
         $url = "{$this->apiBaseUrl}{$this->botToken}/{$method}";
+        $attempt = 0;
+        $lastError = null;
 
-        try {
-            $response = Http::timeout(30)
-                ->post($url, $params);
+        while ($attempt < $retries) {
+            try {
+                $startTime = microtime(true);
 
-            $result = $response->json();
+                $response = Http::timeout(60)
+                    ->connectTimeout(30)
+                    ->retry(2, 100)
+                    ->post($url, $params);
 
-            // لاگ برای debug
-            Log::channel('bale')->info("Bale API Call: {$method}", [
-                'params' => $params,
-                'response' => $result,
-            ]);
+                $duration = round((microtime(true) - $startTime) * 1000, 2);
+                $result = $response->json();
 
-            if (!$result['ok'] ?? false) {
-                Log::channel('bale')->error("Bale API Error: {$method}", [
+                // لاگ فقط برای خطاها و requests کند
+                if (!($result['ok'] ?? false)) {
+                    Log::channel('bale')->error("Bale API Error: {$method}", [
+                        'params' => $params,
+                        'response' => $result,
+                        'duration_ms' => $duration,
+                    ]);
+                } elseif ($duration > 5000) {
+                    Log::channel('bale')->warning("Bale API Slow: {$method}", [
+                        'duration_ms' => $duration,
+                        'params' => array_keys($params),
+                    ]);
+                }
+
+                return $result;
+            } catch (\Exception $e) {
+                $attempt++;
+                $lastError = $e->getMessage();
+
+                // فقط retry کنیم اگر timeout یا connection error باشد
+                if ($attempt < $retries && (
+                    str_contains($lastError, 'timeout') ||
+                    str_contains($lastError, 'Connection') ||
+                    str_contains($lastError, 'Resolving')
+                )) {
+                    usleep(500000 * $attempt); // 0.5s, 1s, 1.5s delay
+                    continue;
+                }
+
+                Log::channel('bale')->error("Bale API Exception: {$method}", [
                     'params' => $params,
-                    'response' => $result,
+                    'error' => $lastError,
+                    'attempt' => $attempt,
                 ]);
+
+                return [
+                    'ok' => false,
+                    'error' => $lastError,
+                ];
             }
-
-            return $result;
-        } catch (\Exception $e) {
-            Log::channel('bale')->error("Bale API Exception: {$method}", [
-                'params' => $params,
-                'error' => $e->getMessage(),
-            ]);
-
-            return [
-                'ok' => false,
-                'error' => $e->getMessage(),
-            ];
         }
+
+        return [
+            'ok' => false,
+            'error' => $lastError ?? 'Max retries reached',
+        ];
     }
 
     /**
