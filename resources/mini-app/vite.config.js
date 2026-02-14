@@ -4,6 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
+  base: '/welfare/mini-app/',
   plugins: [
     vue(),
     VitePWA({
@@ -15,12 +16,12 @@ export default defineConfig({
         theme_color: '#00A6A6',
         icons: [
           {
-            src: '/logo-192.png',
+            src: '/welfare/mini-app/logo-192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/logo-512.png',
+            src: '/welfare/mini-app/logo-512.png',
             sizes: '512x512',
             type: 'image/png'
           }
