@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  base: '/welfare/mini-app/',
+  base: '/',
   plugins: [
     vue(),
     VitePWA({
